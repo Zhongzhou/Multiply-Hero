@@ -30,10 +30,7 @@ export function pickFact(
   avoidKey?: string,
   rng: () => number = Math.random,
 ): Fact {
-  let pool = factsAtDifficulty(facts, difficulty)
-  if (pool.length === 0 && facts.length > 0) {
-    pool = facts.slice().sort((left, right) => left.a - right.a || left.b - right.b)
-  }
+  const pool = factsAtDifficulty(facts, difficulty)
   if (pool.length === 0) {
     throw new Error('No multiplication facts are available.')
   }

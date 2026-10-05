@@ -17,10 +17,12 @@ The kid's avatar fights a level boss by doing single digit multiplications math 
 - For start, all multiplication by 1 has difficulty 0, and 2×2 is also 0. Other multiplication by 2 has difficulty 0.1. Multiplication by 3, 4, and 5, including 3×3, 4×4, and 5×5, has difficulty 0.3. The other square numbers have difficulty 0.5, and the rest have difficulty 0.8.
 - Question for each level is selected based on the their difficulty. Easy level starts at difficulty 0, Medium at difficulty 0.3, and Hard at 0.5
 - Search difficulty moves in steps of 0.1.
-- If two questions at the current difficulty are answered correctly, or if the only question at that difficulty is answered correctly, raise the search by 0.1. If no question exists there, keep raising by 0.1 until a question is found.
-- If two questions at the current difficulty are answered incorrectly, or if the only question at that difficulty is answered incorrectly, lower the search to the closest difficulty below that still has a question.
+- If two questions at the current difficulty are answered correctly, raise the search by 0.1. This includes a difficulty that has only one question. If no question exists at the next step, keep raising by 0.1 until a question is found.
+- If two questions at the current difficulty are answered incorrectly, lower the search to the closest difficulty below that still has a question. This includes a difficulty that has only one question.
 - One correct answer and one incorrect answer at the same difficulty leave the search where it is. The counts start over when the search difficulty changes.
 - If no higher difficulty has a question, the search stays put. If no lower difficulty has a question, the search stays put.
+- If the level's starting difficulty has no question, start at the nearest difficulty that has one. When two difficulties are the same distance away, use the lower one.
+- If the search is on a difficulty with no question, move to that nearest difficulty before choosing the next question. Do not choose a question from some other difficulty.
 - Devise a simple mechanism to dynamically update the difficulty level of each multiplication fact based on the kids' correct of incorrect answer for each question in the game play.
 - All parameters can be modified by the user.
 
@@ -70,6 +72,7 @@ Each fact (for example 3×4 and 4×3 are separate) stores:
 
 - difficulty: a multiple of 0.1
 - streak: consecutive correct answers
+- wrong streak: consecutive wrong answers
 - status: unseen, learning, or mastered
 - correct count and wrong count
 
@@ -85,8 +88,8 @@ Facts run from 1×1 through 9×9. 8×7 starts at 0.8.
 
 During a level the difficulty numbers stay frozen. Each answer still updates that fact immediately:
 
-- Correct: streak increases by 1. Status becomes mastered when the streak reaches 3, otherwise learning.
-- Wrong: streak returns to 0. Status becomes learning.
+- Correct: streak increases by 1. Wrong streak returns to 0. Status becomes mastered when the streak reaches 3, otherwise learning.
+- Wrong: streak returns to 0. Wrong streak increases by 1. Status becomes learning.
 
 The next question is chosen with the search rule above, using these frozen difficulties.
 
@@ -102,9 +105,19 @@ Use the streak that fact has when the level ends, and apply one move:
 
 That move happens once for that streak. The next level does not move it again while the streak stays 2, or stays 3. If one level ends at streak 2 (−0.2) and a later level reaches streak 3, the later level decreases difficulty by another 0.3.
 
-If the streak reaches 3 in the same level it passed through 2, only the streak-3 move applies (−0.3). A wrong answer sets that fact’s streak back to 0 and does not raise its difficulty. After a reset, a new streak of 2 or 3 can move it again.
+If the streak reaches 3 in the same level it passed through 2, only the streak-3 move applies (−0.3). A wrong answer sets that fact’s correct streak back to 0. After a reset, a new streak of 2 or 3 can move it again.
 
-Difficulty stays on the 0.1 grid, from 0 to 0.9. A decrease that would pass 0 stops at 0. The next level uses the new table.
+A correct answer sets that fact’s wrong streak back to 0. Use the wrong streak that fact has when the level ends, and apply one move:
 
-These can be edited: the starting guess, the streak moves (0, −0.2, −0.3), and each level’s starting difficulty and HP.
+- Wrong streak 0 or 1: difficulty stays the same.
+- Wrong streak 2: difficulty increases by 0.2.
+- Wrong streak 3: difficulty increases by 0.3.
+
+That raise happens once for that wrong streak. The next level does not raise it again while the wrong streak stays 2, or stays 3. If one level ends at wrong streak 2 (+0.2) and a later level reaches wrong streak 3, the later level increases difficulty by another 0.3.
+
+If the wrong streak reaches 3 in the same level it passed through 2, only the wrong-streak-3 move applies (+0.3). After a correct answer clears it, a new wrong streak of 2 or 3 can raise it again.
+
+Difficulty stays on the 0.1 grid, from 0 to 0.9. A decrease that would pass 0 stops at 0. An increase that would pass 0.9 stops at 0.9. The next level uses the new table.
+
+These can be edited: the starting guess, the streak moves (0, −0.2, −0.3), the wrong-streak moves (0, +0.2, +0.3), and each level’s starting difficulty and HP.
 

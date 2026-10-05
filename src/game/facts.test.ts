@@ -17,6 +17,9 @@ describe('seed guess', () => {
     expect(gameConfig.streakDifficultyDelta[1]).toBe(0)
     expect(gameConfig.streakDifficultyDelta[2]).toBe(-0.2)
     expect(gameConfig.streakDifficultyDelta[3]).toBe(-0.3)
+    expect(gameConfig.wrongStreakDifficultyDelta[1]).toBe(0)
+    expect(gameConfig.wrongStreakDifficultyDelta[2]).toBe(0.2)
+    expect(gameConfig.wrongStreakDifficultyDelta[3]).toBe(0.3)
   })
 
   it('follows the seed guess, with 8×7 at 0.8 and separate 3×4 and 4×3 facts', () => {

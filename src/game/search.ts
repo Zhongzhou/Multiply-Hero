@@ -38,13 +38,24 @@ export function scanDown(current: number, occupied: readonly number[]): number {
   return fromStepIndex(start)
 }
 
-export function resolveStartDifficulty(start: number, occupied: readonly number[]): number {
+/** Occupied difficulty closest to current. The same distance below wins a tie. */
+export function nearestOccupied(current: number, occupied: readonly number[]): number {
   const counts = countsByStep(occupied)
-  const startStep = toStepIndex(clampDifficulty(start))
-  if ((counts.get(startStep) ?? 0) > 0) return fromStepIndex(startStep)
-  const raised = scanUp(fromStepIndex(startStep), occupied)
-  if (toStepIndex(raised) !== startStep) return raised
-  return scanDown(fromStepIndex(startStep), occupied)
+  const start = toStepIndex(clampDifficulty(current))
+  if ((counts.get(start) ?? 0) > 0) return fromStepIndex(start)
+  const min = toStepIndex(gameConfig.difficulty.min)
+  const max = toStepIndex(gameConfig.difficulty.max)
+  for (let distance = 1; distance <= max - min; distance += 1) {
+    const lower = start - distance
+    if (lower >= min && (counts.get(lower) ?? 0) > 0) return fromStepIndex(lower)
+    const higher = start + distance
+    if (higher <= max && (counts.get(higher) ?? 0) > 0) return fromStepIndex(higher)
+  }
+  return fromStepIndex(start)
+}
+
+export function resolveStartDifficulty(start: number, occupied: readonly number[]): number {
+  return nearestOccupied(start, occupied)
 }
 
 export function createSearch(startDifficulty: number, occupied: readonly number[]): SearchState {
@@ -72,21 +83,18 @@ export function applySearchAnswer(
   const counts = countsByStep(occupied)
   const currentStep = toStepIndex(state.difficulty)
   const available = counts.get(currentStep) ?? 0
+  const here = fromStepIndex(currentStep)
+  if (available === 0) return settled(nearestOccupied(here, occupied))
+
   const correctCount = state.correctCount + (correct ? 1 : 0)
   const wrongCount = state.wrongCount + (correct ? 0 : 1)
   const shift = gameConfig.answersToShift
-  const here = fromStepIndex(currentStep)
-
+  const raise = correctCount >= shift
+  const lower = wrongCount >= shift
   let direction: 'up' | 'down' | null = null
-  if (available === 1) {
-    direction = correct ? 'up' : 'down'
-  } else if (available > 1) {
-    const raise = correctCount >= shift
-    const lower = wrongCount >= shift
-    if (raise && lower) direction = correct ? 'up' : 'down'
-    else if (raise) direction = 'up'
-    else if (lower) direction = 'down'
-  }
+  if (raise && lower) direction = correct ? 'up' : 'down'
+  else if (raise) direction = 'up'
+  else if (lower) direction = 'down'
 
   if (direction === null) {
     return { difficulty: here, correctCount, wrongCount }

@@ -10,8 +10,12 @@ export interface Fact {
   status: FactStatus
   correctCount: number
   wrongCount: number
-  /** Streak milestone already used for a difficulty move this run: 0, 2, or 3. */
+  /** Consecutive wrong answers. A correct answer clears it. */
+  wrongStreak: number
+  /** Streak milestone already used for a difficulty drop this run: 0, 2, or 3. */
   moveAppliedForStreak: number
+  /** Wrong-streak milestone already used for a difficulty raise this run: 0, 2, or 3. */
+  raiseAppliedForStreak: number
 }
 
 export function factKey(a: number, b: number): string {
@@ -27,7 +31,9 @@ export function createFact(a: number, b: number, difficulty = seedDifficulty(a, 
     status: 'unseen',
     correctCount: 0,
     wrongCount: 0,
+    wrongStreak: 0,
     moveAppliedForStreak: 0,
+    raiseAppliedForStreak: 0,
   }
 }
 

@@ -21,6 +21,7 @@ export const gameConfig: {
   factors: { min: number; max: number }
   levels: Record<LevelId, LevelSettings>
   streakDifficultyDelta: { 1: number; 2: number; 3: number }
+  wrongStreakDifficultyDelta: { 1: number; 2: number; 3: number }
 } = {
   difficulty: { min: 0, max: 0.9, step: 0.1 },
   answersToShift: 2,
@@ -35,6 +36,11 @@ export const gameConfig: {
     1: 0,
     2: -0.2,
     3: -0.3,
+  },
+  wrongStreakDifficultyDelta: {
+    1: 0,
+    2: 0.2,
+    3: 0.3,
   },
 }
 

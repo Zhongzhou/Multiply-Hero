@@ -58,7 +58,9 @@ function normalizeFact(fact: Fact): Fact {
     status: isStatus(fact.status) ? fact.status : 'unseen',
     correctCount: fact.correctCount ?? 0,
     wrongCount: fact.wrongCount ?? 0,
+    wrongStreak: fact.wrongStreak ?? 0,
     moveAppliedForStreak: fact.moveAppliedForStreak ?? 0,
+    raiseAppliedForStreak: fact.raiseAppliedForStreak ?? 0,
   }
 }
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { gameConfig } from '../config/gameConfig.ts'
 import { createFact } from './facts.ts'
-import { commitAnswer, startFight } from './fight.ts'
+import { commitAnswer, pickFact, startFight } from './fight.ts'
 import { toStepIndex } from './difficulty.ts'
 
 const zero = () => 0
@@ -29,7 +29,7 @@ describe('fight difficulty timing', () => {
     expect(toStepIndex(last.state.facts[0]!.difficulty)).toBe(5)
   })
 
-  it('does not change difficulty when the avatar reaches 0 on wrong answers', () => {
+  it('keeps difficulty frozen through a loss, then raises it for a miss streak of 3', () => {
     let state = startFight('hard', [createFact(6, 7, 0.8)], zero)
     expect(toStepIndex(state.search.difficulty)).toBe(8)
     const hits = gameConfig.levels.hard.avatarHp
@@ -44,7 +44,9 @@ describe('fight difficulty timing', () => {
     const last = commitAnswer(state, '0', zero)
     expect(last.state.outcome).toBe('lose')
     expect(last.state.avatarHp).toBe(0)
-    expect(toStepIndex(last.state.facts[0]!.difficulty)).toBe(8)
+    expect(last.state.facts[0]!.wrongStreak).toBe(hits)
+    expect(toStepIndex(last.state.facts[0]!.difficulty)).toBe(9)
+    expect(last.state.facts[0]!.raiseAppliedForStreak).toBe(3)
     expect(last.state.facts[0]!.moveAppliedForStreak).toBe(0)
   })
 
@@ -70,13 +72,29 @@ describe('fight difficulty timing', () => {
     expect(toStepIndex(practiced!.difficulty)).toBe(6)
   })
 
-  it('raises the search after the only fact at the start difficulty is answered', () => {
+  it('raises the search after two answers when the start difficulty has one fact', () => {
     const state = startFight('hard', [createFact(2, 2, 0.5), createFact(8, 7, 0.8)], zero)
     expect(state.question).toMatchObject({ a: 2, b: 2 })
-    const step = commitAnswer(state, '4', zero)
-    expect(toStepIndex(step.state.search.difficulty)).toBe(8)
-    expect(step.state.question).toMatchObject({ a: 8, b: 7 })
-    expect(toStepIndex(step.state.facts.find((fact) => fact.a === 2)!.difficulty)).toBe(5)
-    expect(step.state.facts.find((fact) => fact.a === 2)!.streak).toBe(1)
+    const first = commitAnswer(state, '4', zero)
+    expect(toStepIndex(first.state.search.difficulty)).toBe(5)
+    expect(first.state.search.correctCount).toBe(1)
+    expect(first.state.question).toMatchObject({ a: 2, b: 2 })
+    expect(toStepIndex(first.state.facts.find((fact) => fact.a === 2)!.difficulty)).toBe(5)
+    const second = commitAnswer(first.state, '4', zero)
+    expect(toStepIndex(second.state.search.difficulty)).toBe(8)
+    expect(second.state.question).toMatchObject({ a: 8, b: 7 })
+    expect(second.state.facts.find((fact) => fact.a === 2)!.streak).toBe(2)
+  })
+
+  it('starts on the nearer lower difficulty when the level start is empty', () => {
+    const state = startFight('medium', [createFact(2, 3, 0.2), createFact(8, 7, 0.8)], zero)
+    expect(toStepIndex(state.search.difficulty)).toBe(2)
+    expect(state.question).toMatchObject({ a: 2, b: 3 })
+  })
+
+  it('does not draw a question from another difficulty when the search step is empty', () => {
+    expect(() => pickFact([createFact(1, 1, 0)], 0.5, undefined, zero)).toThrow(
+      /No multiplication facts are available/,
+    )
   })
 })

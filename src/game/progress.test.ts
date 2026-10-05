@@ -85,7 +85,7 @@ describe('end-of-level streak difficulty update', () => {
     expect(fact.moveAppliedForStreak).toBe(3)
   })
 
-  it('does not raise difficulty on a wrong answer, and a new streak can move again after a reset', () => {
+  it('a single wrong answer does not raise difficulty, and a new streak can move again after a reset', () => {
     let fact = applyAnswerToFact(createFact(6, 8, 0.8), true)
     fact = applyAnswerToFact(fact, true)
     fact = applyLevelEndUpdate(fact)
@@ -93,9 +93,11 @@ describe('end-of-level streak difficulty update', () => {
 
     fact = applyAnswerToFact(fact, false)
     expect(fact.streak).toBe(0)
+    expect(fact.wrongStreak).toBe(1)
     expect(fact.status).toBe('learning')
     expect(fact.moveAppliedForStreak).toBe(0)
     expect(tenths(fact.difficulty)).toBe(6)
+    expect(tenths(applyLevelEndUpdate(fact).difficulty)).toBe(6)
     expect(fact.wrongCount).toBe(1)
 
     fact = applyAnswerToFact(fact, true)
@@ -130,6 +132,76 @@ describe('end-of-level streak difficulty update', () => {
     grid = applyAnswerToFact(grid, true)
     grid = applyLevelEndUpdate(grid)
     expect(grid.difficulty).toBe(0.1)
+  })
+
+  it('increases difficulty by 0.2 at wrong streak 2 and by 0.3 at wrong streak 3', () => {
+    let streakTwo = applyAnswerToFact(createFact(8, 7, 0.5), false)
+    streakTwo = applyAnswerToFact(streakTwo, false)
+    expect(tenths(streakTwo.difficulty)).toBe(5)
+    streakTwo = applyLevelEndUpdate(streakTwo)
+    expect(streakTwo.wrongStreak).toBe(2)
+    expect(tenths(streakTwo.difficulty)).toBe(7)
+    expect(streakTwo.raiseAppliedForStreak).toBe(2)
+
+    let streakThree = createFact(8, 7, 0.5)
+    streakThree = applyAnswerToFact(streakThree, false)
+    streakThree = applyAnswerToFact(streakThree, false)
+    streakThree = applyAnswerToFact(streakThree, false)
+    expect(tenths(streakThree.difficulty)).toBe(5)
+    streakThree = applyLevelEndUpdate(streakThree)
+    expect(tenths(streakThree.difficulty)).toBe(8)
+    expect(streakThree.raiseAppliedForStreak).toBe(3)
+  })
+
+  it('raises a wrong streak of 2 only once, then adds 0.3 when a later level reaches 3', () => {
+    let fact = applyAnswerToFact(createFact(6, 8, 0.4), false)
+    fact = applyAnswerToFact(fact, false)
+    fact = applyLevelEndUpdate(fact)
+    expect(tenths(fact.difficulty)).toBe(6)
+    const again = applyLevelEndUpdate(fact)
+    expect(tenths(again.difficulty)).toBe(6)
+    expect(again.raiseAppliedForStreak).toBe(2)
+
+    fact = applyAnswerToFact(fact, false)
+    expect(fact.wrongStreak).toBe(3)
+    expect(tenths(fact.difficulty)).toBe(6)
+    fact = applyLevelEndUpdate(fact)
+    expect(tenths(fact.difficulty)).toBe(9)
+    expect(fact.raiseAppliedForStreak).toBe(3)
+  })
+
+  it('stops an increase at 0.9', () => {
+    const high = applyLevelEndUpdate({
+      ...createFact(8, 7, 0.8),
+      streak: 0,
+      wrongStreak: 3,
+    })
+    expect(high.difficulty).toBe(0.9)
+    const capped = applyLevelEndUpdate({
+      ...createFact(9, 9, 0.9),
+      streak: 0,
+      wrongStreak: 2,
+    })
+    expect(capped.difficulty).toBe(0.9)
+  })
+
+  it('clears a wrong streak on a correct answer so the raise can happen again later', () => {
+    let fact = applyAnswerToFact(createFact(6, 7, 0.4), false)
+    fact = applyAnswerToFact(fact, false)
+    fact = applyLevelEndUpdate(fact)
+    expect(tenths(fact.difficulty)).toBe(6)
+    expect(fact.raiseAppliedForStreak).toBe(2)
+
+    fact = applyAnswerToFact(fact, true)
+    expect(fact.wrongStreak).toBe(0)
+    expect(fact.raiseAppliedForStreak).toBe(0)
+    expect(tenths(fact.difficulty)).toBe(6)
+
+    fact = applyAnswerToFact(fact, false)
+    fact = applyAnswerToFact(fact, false)
+    fact = applyLevelEndUpdate(fact)
+    expect(tenths(fact.difficulty)).toBe(8)
+    expect(fact.raiseAppliedForStreak).toBe(2)
   })
 
   it('counts corrects and wrongs without changing difficulty during the answers', () => {

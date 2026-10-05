@@ -6,20 +6,27 @@ function difficulties(state: { difficulty: number }): number {
 }
 
 describe('search movement', () => {
-  it('raises after the only question at a difficulty is answered correctly', () => {
+  it('waits for two corrects when a difficulty has one fact', () => {
     const occupied = [0.4, 0.7]
     let state = createSearch(0.4, occupied)
     expect(difficulties(state)).toBe(4)
+    state = applySearchAnswer(state, true, occupied)
+    expect(difficulties(state)).toBe(4)
+    expect(state.correctCount).toBe(1)
     state = applySearchAnswer(state, true, occupied)
     expect(difficulties(state)).toBe(7)
     expect(state.correctCount).toBe(0)
   })
 
-  it('lowers after the only question at a difficulty is answered incorrectly', () => {
+  it('waits for two wrongs when a difficulty has one fact', () => {
     const occupied = [0.1, 0.4, 0.8]
     let state = createSearch(0.8, occupied)
     state = applySearchAnswer(state, false, occupied)
+    expect(difficulties(state)).toBe(8)
+    expect(state.wrongCount).toBe(1)
+    state = applySearchAnswer(state, false, occupied)
     expect(difficulties(state)).toBe(4)
+    expect(state.wrongCount).toBe(0)
   })
 
   it('waits for two corrects when more than one fact shares the difficulty', () => {
@@ -61,15 +68,19 @@ describe('search movement', () => {
     expect(difficulties(state)).toBe(5)
   })
 
-  it('skips an empty gap after a single question is answered correctly', () => {
+  it('skips an empty gap after two corrects when the step has one fact', () => {
     const occupied = [0.2, 0.6]
-    const state = applySearchAnswer(createSearch(0.2, occupied), true, occupied)
+    let state = applySearchAnswer(createSearch(0.2, occupied), true, occupied)
+    expect(difficulties(state)).toBe(2)
+    state = applySearchAnswer(state, true, occupied)
     expect(difficulties(state)).toBe(6)
   })
 
   it('lowers to the closest difficulty that still has a fact', () => {
     const occupied = [0, 0.4, 0.8]
-    const state = applySearchAnswer(createSearch(0.8, occupied), false, occupied)
+    let state = applySearchAnswer(createSearch(0.8, occupied), false, occupied)
+    expect(difficulties(state)).toBe(8)
+    state = applySearchAnswer(state, false, occupied)
     expect(difficulties(state)).toBe(4)
   })
 
@@ -84,13 +95,20 @@ describe('search movement', () => {
 
   it('stays at 0.9 when nothing is higher', () => {
     const occupied = [0.9]
-    const state = applySearchAnswer(createSearch(0.9, occupied), true, occupied)
+    let state = applySearchAnswer(createSearch(0.9, occupied), true, occupied)
     expect(difficulties(state)).toBe(9)
+    expect(state.correctCount).toBe(1)
+    state = applySearchAnswer(state, true, occupied)
+    expect(difficulties(state)).toBe(9)
+    expect(state.correctCount).toBe(0)
   })
 
   it('stays when no lower difficulty has a fact', () => {
     const occupied = [0, 0.3]
-    const state = applySearchAnswer(createSearch(0, occupied), false, occupied)
+    let state = applySearchAnswer(createSearch(0, occupied), false, occupied)
+    expect(difficulties(state)).toBe(0)
+    expect(state.wrongCount).toBe(1)
+    state = applySearchAnswer(state, false, occupied)
     expect(difficulties(state)).toBe(0)
     expect(state.wrongCount).toBe(0)
   })
@@ -111,6 +129,10 @@ describe('search movement', () => {
     const occupied = [0, 0.3]
     let state = createSearch(0, occupied)
     state = applySearchAnswer(state, false, occupied)
+    state = applySearchAnswer(state, false, occupied)
+    expect(difficulties(state)).toBe(0)
+    expect(state.wrongCount).toBe(0)
+    state = applySearchAnswer(state, true, occupied)
     expect(difficulties(state)).toBe(0)
     state = applySearchAnswer(state, true, occupied)
     expect(difficulties(state)).toBe(3)
@@ -132,8 +154,23 @@ describe('search movement', () => {
     expect(difficulties({ difficulty: resolveStartDifficulty(0.5, [0.2, 0.5, 0.8]) })).toBe(5)
   })
 
-  it('scans up from an empty start, then down when nothing is above', () => {
-    expect(difficulties({ difficulty: resolveStartDifficulty(0.5, [0.2, 0.8]) })).toBe(8)
+  it('uses the nearest occupied step when the start is empty, and breaks a tie downward', () => {
+    expect(difficulties({ difficulty: resolveStartDifficulty(0.5, [0.2, 0.8]) })).toBe(2)
     expect(difficulties({ difficulty: resolveStartDifficulty(0.5, [0.1, 0.4]) })).toBe(4)
+    expect(difficulties({ difficulty: resolveStartDifficulty(0.5, [0.8]) })).toBe(8)
+    expect(difficulties({ difficulty: resolveStartDifficulty(0.3, [0.2, 0.8]) })).toBe(2)
+    expect(difficulties({ difficulty: resolveStartDifficulty(0.5, [0.4, 0.6]) })).toBe(4)
+  })
+
+  it('moves an empty search step to the nearest fact without counting that answer', () => {
+    const occupied = [0.2, 0.8]
+    const state = applySearchAnswer(
+      { difficulty: 0.5, correctCount: 0, wrongCount: 0 },
+      true,
+      occupied,
+    )
+    expect(difficulties(state)).toBe(2)
+    expect(state.correctCount).toBe(0)
+    expect(state.wrongCount).toBe(0)
   })
 })

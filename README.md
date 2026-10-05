@@ -53,4 +53,4 @@ The game copies that guess into IndexedDB the first time it opens on a device. L
 
 ## How a fight works
 
-Easy starts at difficulty 0, Medium at 0.3, and Hard at 0.5. Search moves in steps of 0.1. Two correct answers at the current difficulty raise the search, and two wrong answers lower it. A difficulty with only one fact moves after that single answer. Difficulty numbers stay frozen until the avatar or the boss reaches 0 HP. A wrong answer resets that fact's streak and does not raise its difficulty.
+Easy starts at difficulty 0, Medium at 0.3, and Hard at 0.5. Search moves in steps of 0.1. Two correct answers at the current difficulty raise the search, and two wrong answers lower it, even when that difficulty has only one fact. An empty start uses the nearest difficulty that has a fact, and the lower one wins a tie. Difficulty numbers stay frozen until the avatar or the boss reaches 0 HP. A run of wrong answers on a fact raises its difficulty at the end of the level: two raises it by 0.2, and three by 0.3.
