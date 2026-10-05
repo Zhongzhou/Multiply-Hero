@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { neighborLevel, type AvatarId, type LevelId } from './config/gameConfig.ts'
+import { DifficultyScreen } from './components/DifficultyScreen.tsx'
 import { EndScreen } from './components/EndScreen.tsx'
 import { FightScreen } from './components/FightScreen.tsx'
 import { HomeScreen } from './components/HomeScreen.tsx'
@@ -10,6 +11,7 @@ type Screen =
   | { name: 'loading' }
   | { name: 'error' }
   | { name: 'home' }
+  | { name: 'difficulty' }
   | { name: 'fight'; level: LevelId; battle: number }
   | { name: 'end'; level: LevelId; outcome: 'win' | 'lose' }
 
@@ -87,8 +89,18 @@ export default function App() {
 
   if (screen.name === 'home') {
     return (
-      <HomeScreen avatar={avatar} saveWarning={saveWarning} onChoose={chooseAvatar} onStart={begin} />
+      <HomeScreen
+        avatar={avatar}
+        saveWarning={saveWarning}
+        onChoose={chooseAvatar}
+        onStart={begin}
+        onDifficulty={() => setScreen({ name: 'difficulty' })}
+      />
     )
+  }
+
+  if (screen.name === 'difficulty') {
+    return <DifficultyScreen facts={facts} onFacts={setFacts} onBack={() => setScreen({ name: 'home' })} />
   }
 
   if (screen.name === 'fight') {

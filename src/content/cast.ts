@@ -14,7 +14,7 @@ export type BossMoment = 'idle' | 'cry' | 'laugh' | 'victory' | 'defeat'
 
 export const avatarCast: Record<AvatarId, { name: string; label: string }> = {
   penguin: { name: 'Pengy', label: 'Purple penguin' },
-  koala: { name: 'Marshmello', label: 'Grey koala' },
+  koala: { name: 'Marshy', label: 'Grey koala' },
 }
 
 export const bossCast: Record<BossId, { name: string; label: string }> = {

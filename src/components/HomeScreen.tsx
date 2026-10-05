@@ -8,11 +8,13 @@ export function HomeScreen({
   saveWarning,
   onChoose,
   onStart,
+  onDifficulty,
 }: {
   avatar: AvatarId
   saveWarning: boolean
   onChoose: (avatar: AvatarId) => void
   onStart: (level: LevelId) => void
+  onDifficulty: () => void
 }) {
   return (
     <div className="screen home-screen" data-testid="home">
@@ -20,6 +22,17 @@ export function HomeScreen({
         <div>
           <h1>Multiply Heroes</h1>
           <p>Answer times tables. Knock out the boss. No clock.</p>
+          <button
+            type="button"
+            className="text-button"
+            data-testid="open-difficulty"
+            onClick={() => {
+              playClick()
+              onDifficulty()
+            }}
+          >
+            Fact difficulty
+          </button>
         </div>
       </header>
       <div className="home-columns">

@@ -13,14 +13,14 @@ Win pictures still hop. Lose pictures still tip over onto the ground.
 - `pengy-laughing-and-jumping.png` — Pengy wins the fight
 - `pengy-on-the-ground-crying.png` — Pengy loses the fight
 
-## Marshmello
+## Marshy
 
-- `marshmello-standing.png` — hero page when Marshmello is not selected, and while a question is waiting
-- `marshmello-laughing.png` — Marshmello is selected on the hero page
-- `marshmello-sticking-out-tongue.png` — Marshmello answers correctly
-- `marshmello-crying.png` — Marshmello answers wrong
-- `marshmello-laughing-and-jumping.png` — Marshmello wins the fight
-- `marshmello-on-the-ground-crying.png` — Marshmello loses the fight
+- `marshmello-standing.png` — hero page when Marshy is not selected, and while a question is waiting
+- `marshmello-laughing.png` — Marshy is selected on the hero page
+- `marshmello-sticking-out-tongue.png` — Marshy answers correctly
+- `marshmello-crying.png` — Marshy answers wrong
+- `marshmello-laughing-and-jumping.png` — Marshy wins the fight
+- `marshmello-on-the-ground-crying.png` — Marshy loses the fight
 
 ## Penny
 

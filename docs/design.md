@@ -14,7 +14,7 @@ The kid's avatar fights a level boss by doing single digit multiplications math 
 #### Question selection
 
 - Each multiplication question (single digit multiplication) is associated with a normalized difficulty level. For example, 1 \times 1 has difficulty 0 and 8 \time 7 has difficulty 0.9 
-- For start, all multiplication by 1 has difficulty 0, multiplication by 2 has difficulty 0.1. multiplication by 3, 4, and 5 has difficuties 0.3. All square numbers have difficulty 0.5, and the rest have difficulties of 0.8.
+- For start, all multiplication by 1 has difficulty 0, and 2×2 is also 0. Other multiplication by 2 has difficulty 0.1. Multiplication by 3, 4, and 5, including 3×3, 4×4, and 5×5, has difficulty 0.3. The other square numbers have difficulty 0.5, and the rest have difficulty 0.8.
 - Question for each level is selected based on the their difficulty. Easy level starts at difficulty 0, Medium at difficulty 0.3, and Hard at 0.5
 - Search difficulty moves in steps of 0.1.
 - If two questions at the current difficulty are answered correctly, or if the only question at that difficulty is answered correctly, raise the search by 0.1. If no question exists there, keep raising by 0.1 until a question is found.
@@ -29,7 +29,7 @@ The kid's avatar fights a level boss by doing single digit multiplications math 
 Avatar: (kids can choose different avatar and the list can be expanded later)
 
 - Pengy, a little purple penguin
-- Marshmello, a grey baby koala
+- Marshy, a grey baby koala
 
 Level boss: 
 
@@ -75,10 +75,10 @@ Each fact (for example 3×4 and 4×3 are separate) stores:
 
 Seed guess, first launch only:
 
-- If either factor is 1, including 1×1: 0
-- Otherwise if the two factors are equal: 0.5
+- If either factor is 1, including 1×1, or both factors are 2: 0
 - Otherwise if either factor is 2: 0.1
-- Otherwise if either factor is 3, 4, or 5: 0.3
+- Otherwise if either factor is 3, 4, or 5, including 3×3, 4×4, and 5×5: 0.3
+- Otherwise if the two factors are equal: 0.5
 - Otherwise: 0.8
 
 Facts run from 1×1 through 9×9. 8×7 starts at 0.8.

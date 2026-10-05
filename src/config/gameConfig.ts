@@ -54,9 +54,9 @@ export function neighborLevel(level: LevelId, step: -1 | 1): LevelId | null {
 
 /** First-launch difficulty guess. 3×4 and 4×3 are separate facts. */
 export function seedDifficulty(a: number, b: number): number {
-  if (a === 1 || b === 1) return 0
-  if (a === b) return 0.5
+  if (a === 1 || b === 1 || (a === 2 && b === 2)) return 0
   if (a === 2 || b === 2) return 0.1
   if (a === 3 || a === 4 || a === 5 || b === 3 || b === 4 || b === 5) return 0.3
+  if (a === b) return 0.5
   return 0.8
 }
