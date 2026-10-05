@@ -1,0 +1,641 @@
+@import 'tailwindcss';
+
+:root {
+  --ink: #1e2a3a;
+  --cream: #fffdf8;
+  --grass: #b7e4a4;
+  color: var(--ink);
+  font-family: Fredoka, 'Trebuchet MS', 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(circle at 8% 10%, #fff3b0 0 68px, transparent 70px),
+    radial-gradient(circle at 88% 12%, #fff 0 34px, transparent 36px),
+    radial-gradient(circle at 78% 18%, #fff 0 18px, transparent 20px),
+    linear-gradient(#b7e4ff 0%, #fff6df 54%, var(--grass) 100%);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  touch-action: manipulation;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.screen {
+  min-height: 100dvh;
+  padding: max(0.75rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+    max(0.75rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+}
+
+.center-screen {
+  display: grid;
+  place-items: center;
+}
+
+.loading-copy,
+h1,
+h2 {
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.05;
+}
+
+h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.5rem;
+}
+
+.home-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.home-header p,
+.panel p,
+.end-sub,
+.pad-hint,
+.level-hp,
+.hero-label {
+  margin: 0.25rem 0 0;
+  font-size: 1.05rem;
+}
+
+.home-columns {
+  display: grid;
+  gap: 1rem;
+  flex: 1;
+}
+
+.panel {
+  border: 3px solid var(--ink);
+  border-radius: 1.4rem;
+  background: color-mix(in srgb, var(--cream) 92%, transparent);
+  box-shadow: 6px 6px 0 var(--ink);
+  padding: 1rem;
+}
+
+.narrow-panel {
+  max-width: 28rem;
+}
+
+.hero-grid,
+.level-list,
+.end-actions,
+.leave-card {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.hero-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.hero-card,
+.level-card,
+.sticker,
+.pad-key {
+  border: 3px solid var(--ink);
+  border-radius: 1.15rem;
+  background: var(--cream);
+  box-shadow: 4px 4px 0 var(--ink);
+  font-weight: 700;
+}
+
+.hero-card,
+.level-card,
+.sticker,
+.pad-key,
+.text-button {
+  cursor: pointer;
+}
+
+.hero-card:active,
+.level-card:active,
+.sticker:active:not(:disabled),
+.pad-key:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.hero-card:focus-visible,
+.level-card:focus-visible,
+.sticker:focus-visible,
+.pad-key:focus-visible,
+.text-button:focus-visible {
+  outline: 4px solid #2f6fed;
+  outline-offset: 3px;
+}
+
+.hero-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  text-align: center;
+}
+
+.hero-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.45rem 0.4rem;
+}
+
+.hero-card[aria-pressed='true'] {
+  background: #efe6ff;
+  outline: 4px solid #7b4fe0;
+}
+
+.hero-art,
+.level-art {
+  width: 100%;
+  height: 8.5rem;
+}
+
+.hero-art {
+  overflow: hidden;
+}
+
+.hero-art img,
+.level-art img,
+.actor img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.hero-art img {
+  transform: translateY(-14%);
+}
+
+.level-art {
+  width: 5.5rem;
+  height: 5.5rem;
+  flex: none;
+}
+
+.hero-name,
+.level-name {
+  font-size: 1.35rem;
+}
+
+.hero-name {
+  margin-top: 0.35rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.level-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 6.5rem;
+  padding: 0.45rem 0.8rem;
+  text-align: left;
+}
+
+.level-copy {
+  display: flex;
+  flex-direction: column;
+}
+
+.level-easy {
+  background: #e7f8d8;
+}
+
+.level-medium {
+  background: #fff1c2;
+}
+
+.level-hard {
+  background: #ffe0d2;
+}
+
+.sticker {
+  min-height: 4rem;
+  padding: 0.7rem 1rem;
+  font-size: 1.35rem;
+}
+
+.sticker:disabled {
+  background: #d5cfc3;
+  color: #625c54;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.sticker-green,
+.pad-enter {
+  background: #b6f3a4;
+}
+
+.pad-back {
+  background: #ffd0c2;
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 2.75rem;
+}
+
+.fight-screen,
+.end-screen {
+  display: flex;
+  flex-direction: column;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.fight-screen {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: auto;
+}
+
+.end-screen {
+  min-height: 100dvh;
+  overflow: visible;
+}
+
+.fight-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.hp-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.hp-end {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.hp-name,
+.level-chip,
+.character-name,
+.end-kicker {
+  font-weight: 700;
+}
+
+.hp-value {
+  font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+  font-weight: 700;
+}
+
+.hp-hearts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  max-width: 22rem;
+}
+
+.hp-end .hp-hearts {
+  justify-content: flex-end;
+}
+
+.heart {
+  width: 2.15rem;
+  height: 2.15rem;
+}
+
+.fight-tools {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.level-chip {
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: #fff;
+  padding: 0.15rem 0.7rem;
+}
+
+.fight-stage {
+  display: grid;
+  flex: 1 0 auto;
+  gap: 0.4rem;
+  grid-template-areas:
+    'question question'
+    'avatar boss';
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.fight-question,
+.question-card {
+  grid-area: question;
+}
+
+.fight-avatar {
+  grid-area: avatar;
+}
+
+.fight-boss {
+  grid-area: boss;
+}
+
+.question-card {
+  justify-self: center;
+  width: min(100%, 26rem);
+  border: 4px solid var(--ink);
+  border-radius: 1.5rem;
+  background: var(--cream);
+  box-shadow: 6px 6px 0 var(--ink);
+  padding: 0.8rem 1rem 0.6rem;
+  text-align: center;
+}
+
+.question-yes {
+  background: #f3ffe8;
+}
+
+.question-no {
+  background: #fff1ea;
+}
+
+.question-text {
+  margin: 0;
+  font-size: clamp(2.6rem, 7vw, 4.6rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.answer-well {
+  margin: 0.45rem auto 0;
+  display: grid;
+  place-items: center;
+  min-height: 4.2rem;
+  width: min(100%, 12rem);
+  border: 4px solid var(--ink);
+  border-radius: 1rem;
+  background: #fff;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+}
+
+.answer-product {
+  width: min(100%, 16rem);
+}
+
+.feedback-line {
+  min-height: 1.6rem;
+  margin: 0.35rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.character-slot {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.actor {
+  width: min(100%, 250px);
+  height: min(100%, 250px);
+  min-height: 7.5rem;
+}
+
+.character-name {
+  margin-top: 0.1rem;
+  font-size: 1.15rem;
+}
+
+.fight-pad {
+  flex: none;
+  padding-top: 0.35rem;
+}
+
+.number-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: min(100%, 28rem);
+  margin: 0 auto;
+}
+
+.pad-key {
+  min-height: 4.25rem;
+  font-size: 1.8rem;
+}
+
+.pad-enter {
+  font-size: 1.25rem;
+}
+
+.pad-hint {
+  text-align: center;
+}
+
+.save-warning {
+  margin: 0.25rem 0 0;
+  font-weight: 700;
+  color: #9a3412;
+}
+
+.leave-layer {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--ink) 42%, transparent);
+  padding: 1rem;
+}
+
+.leave-card {
+  width: min(100%, 24rem);
+}
+
+.end-stage {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-areas:
+    'title title'
+    'avatar boss'
+    'actions actions';
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.end-copy {
+  grid-area: title;
+  text-align: center;
+}
+
+.end-stage .character-slot:nth-of-type(1) {
+  grid-area: avatar;
+}
+
+.end-stage .character-slot:nth-of-type(2) {
+  grid-area: boss;
+}
+
+.end-actions {
+  grid-area: actions;
+  width: min(100%, 24rem);
+  margin: 0 auto;
+}
+
+.motion-idle {
+  animation: bob 2.6s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+
+.motion-jump {
+  animation: hop 0.7s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+
+.motion-fallen {
+  transform: rotate(58deg) scale(0.84);
+  transform-origin: 50% 78%;
+}
+
+.motion-lay {
+  transform: rotate(-58deg) scale(0.84);
+  transform-origin: 50% 78%;
+}
+
+.side-right.motion-fallen {
+  transform: rotate(52deg) translateX(-18%) scale(0.8);
+  transform-origin: 30% 80%;
+}
+
+.side-left.motion-lay {
+  transform: rotate(-52deg) translateX(16%) scale(0.8);
+  transform-origin: 70% 80%;
+}
+
+.tear {
+  animation: drip 0.95s ease-in infinite;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  40% {
+    transform: translateY(-28px) scale(0.97, 1.04);
+  }
+  70% {
+    transform: translateY(0) scale(1.04, 0.96);
+  }
+}
+
+@keyframes drip {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(26px);
+    opacity: 0;
+  }
+}
+
+@media (min-width: 900px) {
+  .home-columns {
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: stretch;
+  }
+
+  .hero-art {
+    height: 11rem;
+  }
+
+  .fight-stage {
+    grid-template-areas: 'avatar question boss';
+    grid-template-columns: 1fr minmax(240px, 420px) 1fr;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .number-pad {
+    grid-template-columns: repeat(6, minmax(4.25rem, 1fr));
+    width: min(100%, 46rem);
+  }
+
+  .pad-key {
+    min-height: 4.75rem;
+  }
+
+  .end-stage {
+    grid-template-areas:
+      'avatar title boss'
+      'avatar actions boss';
+    grid-template-columns: 1fr minmax(260px, 420px) 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .actor {
+    width: min(100%, 320px);
+    height: min(42vh, 340px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-idle,
+  .motion-jump,
+  .tear {
+    animation: none;
+  }
+}
