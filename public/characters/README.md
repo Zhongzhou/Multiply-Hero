@@ -2,7 +2,7 @@
 
 Swap any file in this folder and refresh. Keep the filename. The pictures are the poses the game shows today, so it looks the same until you replace one.
 
-Win pictures still hop. Lose pictures still tip over onto the ground.
+Win pictures still hop. Lose pictures stay upright, the way they are drawn.
 
 ## Pengy
 

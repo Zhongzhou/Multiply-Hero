@@ -77,6 +77,27 @@ h2 {
   margin: 0 auto;
 }
 
+.home-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.1rem;
+  margin-top: 0.35rem;
+}
+
+.album-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: fit-content;
+  margin-top: 0.75rem;
+  padding: 0.4rem 1.1rem 0.4rem 0.55rem;
+}
+
+.album-open .album-medal {
+  width: 2.05rem;
+  flex: none;
+}
+
 .home-header p,
 .panel p,
 .end-sub,
@@ -532,26 +553,6 @@ h2 {
   transform-origin: 50% 80%;
 }
 
-.motion-fallen {
-  transform: rotate(58deg) scale(0.84);
-  transform-origin: 50% 78%;
-}
-
-.motion-lay {
-  transform: rotate(-58deg) scale(0.84);
-  transform-origin: 50% 78%;
-}
-
-.side-right.motion-fallen {
-  transform: rotate(52deg) translateX(-18%) scale(0.8);
-  transform-origin: 30% 80%;
-}
-
-.side-left.motion-lay {
-  transform: rotate(-52deg) translateX(16%) scale(0.8);
-  transform-origin: 70% 80%;
-}
-
 .tear {
   animation: drip 0.95s ease-in infinite;
 }
@@ -859,10 +860,245 @@ h2 {
   }
 }
 
+.album-screen {
+  width: min(820px, 100%);
+  margin: 0 auto;
+}
+
+.album-lede,
+.album-day-date,
+.album-hint,
+.album-copy p {
+  margin: 0.2rem 0 0;
+  font-size: 1.05rem;
+}
+
+.album {
+  position: relative;
+  margin-top: 1rem;
+}
+
+.album-under {
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--ink);
+  border-radius: 1.5rem;
+  background: #fff1cc;
+}
+
+.album-under.one {
+  transform: translate(6px, 6px);
+}
+
+.album-under.two {
+  transform: translate(11px, 11px);
+  background: #ffe3a3;
+}
+
+.album-page {
+  position: relative;
+  z-index: 1;
+  border: 3px solid var(--ink);
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, var(--cream) 94%, transparent);
+  box-shadow: 6px 6px 0 var(--ink);
+  padding: 0.9rem;
+}
+
+.album-page.is-turn-older {
+  animation: album-turn-older 280ms ease-out;
+}
+
+.album-page.is-turn-newer {
+  animation: album-turn-newer 280ms ease-out;
+}
+
+@keyframes album-turn-older {
+  from {
+    opacity: 0.2;
+    transform: translateX(-22px) rotate(-0.4deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes album-turn-newer {
+  from {
+    opacity: 0.2;
+    transform: translateX(22px) rotate(0.4deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.album-nav {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.album-nav-btn {
+  min-width: 4.25rem;
+  min-height: 4.25rem;
+  padding: 0.35rem;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.album-day-label,
+.album-score {
+  text-align: center;
+}
+
+.album-day-title {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  line-height: 1.05;
+}
+
+.album-score {
+  margin: 0.85rem 0 0;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.album-score-num {
+  display: block;
+  font-size: clamp(2.4rem, 6vw, 3.2rem);
+  line-height: 0.95;
+}
+
+.album-levels {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.album-level {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'copy boss'
+    'tray tray';
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+  border: 3px solid var(--ink);
+  border-radius: 1.15rem;
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 0.55rem 0.7rem 0.65rem;
+}
+
+.album-copy {
+  grid-area: copy;
+}
+
+.album-copy h3 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.album-win-count {
+  font-weight: 700;
+}
+
+.album-tray {
+  grid-area: tray;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.45rem;
+  align-items: flex-end;
+  min-height: 4.3rem;
+  margin: 0;
+  padding: 0.15rem 0 0;
+}
+
+.album-boss {
+  grid-area: boss;
+  width: 6.4rem;
+  height: 5.6rem;
+  justify-self: end;
+}
+
+.album-boss img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.album-boss.is-flat img {
+  mix-blend-mode: multiply;
+}
+
+.album-medal,
+.album-empty-medal {
+  width: 3.15rem;
+  height: auto;
+}
+
+.album-medal {
+  filter: drop-shadow(2px 2px 0 #8a5a08);
+  animation: album-medal-pop 340ms ease-out both;
+}
+
+.album-empty-medal {
+  opacity: 0.55;
+}
+
+@keyframes album-medal-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.album-hint {
+  margin-top: 0.75rem;
+}
+
+@media (min-width: 700px) {
+  .album-level {
+    grid-template-columns: minmax(8.5rem, 0.55fr) 1fr auto;
+    grid-template-areas: 'copy tray boss';
+    min-height: 6.4rem;
+  }
+
+  .album-tray {
+    align-items: center;
+    min-height: 0;
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .album-nav-btn {
+    min-width: 3.4rem;
+    min-height: 3.4rem;
+  }
+
+  .album-boss {
+    width: 5.2rem;
+    height: 4.6rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .motion-idle,
   .motion-jump,
-  .tear {
+  .tear,
+  .album-page.is-turn-older,
+  .album-page.is-turn-newer,
+  .album-medal {
     animation: none;
   }
 }

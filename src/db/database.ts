@@ -1,7 +1,8 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
-import type { AvatarId } from '../config/gameConfig.ts'
+import type { AvatarId, LevelId } from '../config/gameConfig.ts'
 import { clampDifficulty } from '../game/difficulty.ts'
 import { createSeedFacts, factKey, type Fact, type FactStatus } from '../game/facts.ts'
+import { addWin, localDateKey, normalizeWins, type DayWins } from '../game/wins.ts'
 
 interface AvatarSetting {
   avatar: AvatarId
@@ -16,6 +17,10 @@ interface MultiplyDB extends DBSchema {
     key: string
     value: AvatarSetting
   }
+  wins: {
+    key: string
+    value: DayWins
+  }
 }
 
 export interface SavedGame {
@@ -24,7 +29,7 @@ export interface SavedGame {
 }
 
 const DB_NAME = 'multiply-heroes'
-const DB_VERSION = 1
+const DB_VERSION = 2
 
 let databasePromise: Promise<IDBPDatabase<MultiplyDB>> | null = null
 let loadPromise: Promise<SavedGame> | null = null
@@ -35,6 +40,7 @@ function database(): Promise<IDBPDatabase<MultiplyDB>> {
       upgrade(db) {
         if (!db.objectStoreNames.contains('facts')) db.createObjectStore('facts')
         if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings')
+        if (!db.objectStoreNames.contains('wins')) db.createObjectStore('wins')
       },
     })
   }
@@ -107,4 +113,26 @@ export async function saveFacts(facts: readonly Fact[]): Promise<void> {
 export async function saveAvatar(avatar: AvatarId): Promise<void> {
   const db = await database()
   await db.put('settings', { avatar }, 'avatar')
+}
+
+export async function loadWinDays(): Promise<Record<string, DayWins>> {
+  const db = await database()
+  const tx = db.transaction('wins')
+  const keys = await tx.store.getAllKeys()
+  const values = await tx.store.getAll()
+  await tx.done
+  const days: Record<string, DayWins> = {}
+  keys.forEach((key, index) => {
+    days[key] = normalizeWins(values[index])
+  })
+  return days
+}
+
+export async function recordWin(level: LevelId, when = new Date()): Promise<void> {
+  const db = await database()
+  const key = localDateKey(when)
+  const tx = db.transaction('wins', 'readwrite')
+  const current = normalizeWins(await tx.store.get(key))
+  await tx.store.put(addWin(current, level), key)
+  await tx.done
 }

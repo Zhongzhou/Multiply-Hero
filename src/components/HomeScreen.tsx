@@ -2,6 +2,7 @@ import { playClick } from '../audio/sounds.ts'
 import { gameConfig, levelLabel, levelOrder, type AvatarId, type LevelId } from '../config/gameConfig.ts'
 import { avatarCast, bossCast } from '../content/cast.ts'
 import { CharacterArt } from './Characters.tsx'
+import { GoldMedal } from './VictoryAlbumScreen.tsx'
 
 export function HomeScreen({
   avatar,
@@ -9,12 +10,14 @@ export function HomeScreen({
   onChoose,
   onStart,
   onDifficulty,
+  onAlbum,
 }: {
   avatar: AvatarId
   saveWarning: boolean
   onChoose: (avatar: AvatarId) => void
   onStart: (level: LevelId) => void
   onDifficulty: () => void
+  onAlbum: () => void
 }) {
   return (
     <div className="screen home-screen" data-testid="home">
@@ -22,16 +25,30 @@ export function HomeScreen({
         <div>
           <h1>Multiply Heroes</h1>
           <p>Answer times tables. Knock out the boss. No clock.</p>
+          <div className="home-links">
+            <button
+              type="button"
+              className="text-button"
+              data-testid="open-difficulty"
+              onClick={() => {
+                playClick()
+                onDifficulty()
+              }}
+            >
+              Fact difficulty
+            </button>
+          </div>
           <button
             type="button"
-            className="text-button"
-            data-testid="open-difficulty"
+            className="sticker album-open"
+            data-testid="open-album"
             onClick={() => {
               playClick()
-              onDifficulty()
+              onAlbum()
             }}
           >
-            Fact difficulty
+            <GoldMedal id="home-album-medal" />
+            Your victory album
           </button>
         </div>
       </header>
