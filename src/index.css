@@ -98,6 +98,12 @@ h2 {
   flex: none;
 }
 
+.end-actions .album-open {
+  width: 100%;
+  margin-top: 0;
+  justify-content: center;
+}
+
 .home-header p,
 .panel p,
 .end-sub,

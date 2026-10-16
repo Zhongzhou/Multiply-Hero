@@ -162,6 +162,7 @@ export default function App() {
         if (harder) begin(harder)
       }}
       onHome={() => setScreen({ name: 'home' })}
+      onAlbum={() => setScreen({ name: 'album' })}
     />
   )
 }

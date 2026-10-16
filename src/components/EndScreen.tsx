@@ -2,6 +2,7 @@ import { playClick } from '../audio/sounds.ts'
 import { levelLabel, neighborLevel, gameConfig, type AvatarId, type LevelId } from '../config/gameConfig.ts'
 import { avatarCast, avatarPose, bossCast, bossPose } from '../content/cast.ts'
 import { CharacterSlot } from './Characters.tsx'
+import { GoldMedal } from './VictoryAlbumScreen.tsx'
 
 export function EndScreen({
   level,
@@ -11,6 +12,7 @@ export function EndScreen({
   onEasier,
   onHarder,
   onHome,
+  onAlbum,
 }: {
   level: LevelId
   outcome: 'win' | 'lose'
@@ -19,6 +21,7 @@ export function EndScreen({
   onEasier: () => void
   onHarder: () => void
   onHome: () => void
+  onAlbum: () => void
 }) {
   const settings = gameConfig.levels[level]
   const hero = avatarCast[avatar]
@@ -88,6 +91,18 @@ export function EndScreen({
             }}
           >
             Play harder
+          </button>
+          <button
+            type="button"
+            className="sticker album-open"
+            data-testid="end-album"
+            onClick={() => {
+              playClick()
+              onAlbum()
+            }}
+          >
+            <GoldMedal id="end-album-medal" />
+            Your victory album
           </button>
           <button
             type="button"
