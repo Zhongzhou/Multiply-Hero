@@ -41,6 +41,7 @@ export function FightScreen({
   const submitRef = useRef<(raw: string) => void>(() => {})
   const phaseRef = useRef(phase)
   const leavingRef = useRef(leaving)
+  const askedAt = useRef(performance.now())
 
   useEffect(() => {
     const ids = timeouts.current
@@ -82,7 +83,8 @@ export function FightScreen({
   function submit(raw: string) {
     if (busy.current || phase !== 'ask' || leaving) return
     if (!/^\d{1,2}$/.test(raw)) return
-    const result = commitAnswer(fightRef.current, raw)
+    const elapsedMs = performance.now() - askedAt.current
+    const result = commitAnswer(fightRef.current, raw, Math.random, elapsedMs)
     if (!result.accepted) return
     busy.current = true
     setDigits('')
@@ -107,6 +109,10 @@ export function FightScreen({
       showReaction(result.state, false, result.product, question)
     })
   }
+
+  useEffect(() => {
+    if (phase === 'ask') askedAt.current = performance.now()
+  }, [phase, fight.question.a, fight.question.b])
 
   useEffect(() => {
     phaseRef.current = phase

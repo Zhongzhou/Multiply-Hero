@@ -20,6 +20,11 @@ describe('seed guess', () => {
     expect(gameConfig.wrongStreakDifficultyDelta[1]).toBe(0)
     expect(gameConfig.wrongStreakDifficultyDelta[2]).toBe(0.2)
     expect(gameConfig.wrongStreakDifficultyDelta[3]).toBe(0.3)
+    expect(gameConfig.answerTiming.fastUnderSeconds).toBe(3)
+    expect(gameConfig.answerTiming.slowOverSeconds).toBe(10)
+    expect(gameConfig.answerTiming.fastDelta).toBe(-0.1)
+    expect(gameConfig.answerTiming.slowDelta).toBe(0.1)
+    expect(gameConfig.answerTiming.recentAttempts).toBe(5)
   })
 
   it('follows the seed guess, with 8×7 at 0.8 and separate 3×4 and 4×3 facts', () => {
@@ -45,6 +50,9 @@ describe('seed guess', () => {
     expect(threeFour?.difficulty).toBe(0.3)
     expect(fourThree?.difficulty).toBe(0.3)
     expect(facts.some((fact) => toStepIndex(fact.difficulty) === 9)).toBe(false)
+    expect(facts.every((fact) => fact.recentAttemptMs.length === 0)).toBe(true)
+    expect(facts.every((fact) => fact.averageAttemptMs === null)).toBe(true)
+    expect(facts.every((fact) => fact.pendingAttemptMs.length === 0)).toBe(true)
   })
 
   it('fills the 0.1 grid from the seed rules', () => {
