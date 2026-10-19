@@ -1,7 +1,15 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { AvatarId, LevelId } from '../config/gameConfig.ts'
 import { clampDifficulty } from '../game/difficulty.ts'
-import { createSeedFacts, factKey, type Fact, type FactStatus } from '../game/facts.ts'
+import {
+  createSeedFacts,
+  factKey,
+  meanAttemptMs,
+  normalizeAttemptMs,
+  sanitizeAttemptMs,
+  type Fact,
+  type FactStatus,
+} from '../game/facts.ts'
 import { addWin, localDateKey, normalizeWins, type DayWins } from '../game/wins.ts'
 
 interface AvatarSetting {
@@ -56,6 +64,7 @@ function isStatus(value: unknown): value is FactStatus {
 }
 
 function normalizeFact(fact: Fact): Fact {
+  const recentAttemptMs = normalizeAttemptMs(fact.recentAttemptMs)
   return {
     a: fact.a,
     b: fact.b,
@@ -67,6 +76,9 @@ function normalizeFact(fact: Fact): Fact {
     wrongStreak: fact.wrongStreak ?? 0,
     moveAppliedForStreak: fact.moveAppliedForStreak ?? 0,
     raiseAppliedForStreak: fact.raiseAppliedForStreak ?? 0,
+    recentAttemptMs,
+    averageAttemptMs: meanAttemptMs(recentAttemptMs),
+    pendingAttemptMs: sanitizeAttemptMs(fact.pendingAttemptMs),
   }
 }
 

@@ -1,7 +1,7 @@
 import { gameConfig, type LevelId } from '../config/gameConfig.ts'
 import { sameDifficulty } from './difficulty.ts'
 import { factKey, type Fact } from './facts.ts'
-import { applyAnswerToFact, applyLevelEndToTable } from './progress.ts'
+import { applyAnswerToFact, applyLevelEndToTable, recordAttemptTime } from './progress.ts'
 import { createSearch, applySearchAnswer, type SearchState } from './search.ts'
 
 export interface FightState {
@@ -70,10 +70,16 @@ export function startFight(
   }
 }
 
+function acceptedElapsed(elapsedMs: number | undefined): number | null {
+  if (elapsedMs === undefined || !Number.isFinite(elapsedMs) || elapsedMs < 0) return null
+  return elapsedMs
+}
+
 export function commitAnswer(
   state: FightState,
   raw: string,
   rng: () => number = Math.random,
+  elapsedMs?: number,
 ): { state: FightState; correct: boolean; product: number; accepted: boolean } {
   const product = state.question.a * state.question.b
   if (state.over || !/^\d{1,2}$/.test(raw)) {
@@ -81,9 +87,12 @@ export function commitAnswer(
   }
   const correct = Number(raw) === product
   const key = factKey(state.question.a, state.question.b)
-  const answered = state.facts.map((fact) =>
-    factKey(fact.a, fact.b) === key ? applyAnswerToFact(fact, correct) : fact,
-  )
+  const elapsed = acceptedElapsed(elapsedMs)
+  const answered = state.facts.map((fact) => {
+    if (factKey(fact.a, fact.b) !== key) return fact
+    const updated = applyAnswerToFact(fact, correct)
+    return elapsed === null ? updated : recordAttemptTime(updated, elapsed)
+  })
   const occupied = state.facts.map((fact) => fact.difficulty)
   const search = applySearchAnswer(state.search, correct, occupied)
   const avatarHp = correct ? state.avatarHp : state.avatarHp - 1

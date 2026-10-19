@@ -22,6 +22,13 @@ export const gameConfig: {
   levels: Record<LevelId, LevelSettings>
   streakDifficultyDelta: { 1: number; 2: number; 3: number }
   wrongStreakDifficultyDelta: { 1: number; 2: number; 3: number }
+  answerTiming: {
+    fastUnderSeconds: number
+    slowOverSeconds: number
+    fastDelta: number
+    slowDelta: number
+    recentAttempts: number
+  }
 } = {
   difficulty: { min: 0, max: 0.9, step: 0.1 },
   answersToShift: 2,
@@ -41,6 +48,13 @@ export const gameConfig: {
     1: 0,
     2: 0.2,
     3: 0.3,
+  },
+  answerTiming: {
+    fastUnderSeconds: 3,
+    slowOverSeconds: 10,
+    fastDelta: -0.1,
+    slowDelta: 0.1,
+    recentAttempts: 5,
   },
 }
 

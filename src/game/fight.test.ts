@@ -97,4 +97,72 @@ describe('fight difficulty timing', () => {
       /No multiplication facts are available/,
     )
   })
+
+  it('keeps difficulty frozen during a fight, then adds each fast answer to the streak move', () => {
+    let state = startFight('easy', [createFact(8, 7, 0.8)], zero)
+    for (let hit = 0; hit < 3; hit += 1) {
+      const step = commitAnswer(state, '56', zero, 1000)
+      expect(step.state.over).toBe(false)
+      expect(toStepIndex(step.state.facts[0]!.difficulty)).toBe(8)
+      expect(step.state.facts[0]!.recentAttemptMs).toEqual(Array.from({ length: hit + 1 }, () => 1000))
+      expect(step.state.facts[0]!.pendingAttemptMs).toHaveLength(hit + 1)
+      state = step.state
+    }
+
+    const last = commitAnswer(state, '56', zero, 1000)
+    expect(last.state.outcome).toBe('win')
+    expect(toStepIndex(last.state.facts[0]!.difficulty)).toBe(1)
+    expect(last.state.facts[0]!.pendingAttemptMs).toEqual([])
+    expect(last.state.facts[0]!.averageAttemptMs).toBe(1000)
+    expect(last.state.facts[0]!.moveAppliedForStreak).toBe(3)
+  })
+
+  it('applies a fast answer from an unfinished fight when a later level finishes, and does not apply it twice', () => {
+    const left = commitAnswer(startFight('easy', [createFact(8, 7, 0.8)], zero), '56', zero, 1000)
+    expect(left.state.over).toBe(false)
+    expect(toStepIndex(left.state.facts[0]!.difficulty)).toBe(8)
+    expect(left.state.facts[0]!.pendingAttemptMs).toEqual([1000])
+
+    let state = startFight('easy', left.state.facts, zero)
+    for (let hit = 0; hit < 3; hit += 1) {
+      state = commitAnswer(state, '56', zero, 5000).state
+      expect(state.over).toBe(false)
+      expect(toStepIndex(state.facts[0]!.difficulty)).toBe(8)
+    }
+    const finished = commitAnswer(state, '56', zero, 5000)
+    expect(finished.state.outcome).toBe('win')
+    expect(toStepIndex(finished.state.facts[0]!.difficulty)).toBe(4)
+    expect(finished.state.facts[0]!.pendingAttemptMs).toEqual([])
+    expect(finished.state.facts[0]!.recentAttemptMs).toEqual([1000, 5000, 5000, 5000, 5000])
+
+    let again = startFight('easy', finished.state.facts, zero)
+    for (let hit = 0; hit < 4; hit += 1) {
+      again = commitAnswer(again, '56', zero, 5000).state
+    }
+    expect(again.outcome).toBe('win')
+    expect(toStepIndex(again.facts[0]!.difficulty)).toBe(4)
+  })
+
+  it('raises difficulty for a slow miss when the level is lost, and keeps only the last 5 times', () => {
+    let state = startFight('easy', [createFact(6, 7, 0.5)], zero)
+    const times = [1000, 2000, 3000, 4000, 5000, 11000]
+    for (const elapsedMs of times) {
+      const step = commitAnswer(state, '0', zero, elapsedMs)
+      state = step.state
+    }
+    expect(state.outcome).toBe('lose')
+    expect(state.facts[0]!.wrongStreak).toBe(gameConfig.levels.easy.avatarHp)
+    expect(toStepIndex(state.facts[0]!.difficulty)).toBe(7)
+    expect(state.facts[0]!.recentAttemptMs).toEqual([2000, 3000, 4000, 5000, 11000])
+    expect(state.facts[0]!.averageAttemptMs).toBe(5000)
+    expect(state.facts[0]!.pendingAttemptMs).toEqual([])
+  })
+
+  it('does not record a time when the submission is rejected', () => {
+    const state = startFight('easy', [createFact(8, 7, 0.8)], zero)
+    const step = commitAnswer(state, 'no', zero, 1000)
+    expect(step.accepted).toBe(false)
+    expect(state.facts[0]!.recentAttemptMs).toEqual([])
+    expect(state.facts[0]!.averageAttemptMs).toBeNull()
+  })
 })

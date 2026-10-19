@@ -12,6 +12,14 @@ function formatDifficulty(value: number): string {
   return (toStepIndex(value) / 10).toFixed(1)
 }
 
+function formatAverageAttempt(fact: Fact | undefined): string | null {
+  if (!fact || fact.recentAttemptMs.length === 0 || fact.averageAttemptMs == null) return null
+  const seconds = (fact.averageAttemptMs / 1000).toFixed(1)
+  const count = fact.recentAttemptMs.length
+  const tries = count === 1 ? 'try' : 'tries'
+  return `Average ${seconds}s over the last ${count} ${tries}`
+}
+
 export function DifficultyScreen({
   facts,
   onFacts,
@@ -32,24 +40,26 @@ export function DifficultyScreen({
   const cancelRef = useRef<HTMLButtonElement>(null)
   const resetButtonRef = useRef<HTMLButtonElement>(null)
   const wasConfirming = useRef(false)
-  const difficultyByKey = new Map(facts.map((fact) => [factKey(fact.a, fact.b), fact.difficulty]))
+  const factByKey = new Map(facts.map((fact) => [factKey(fact.a, fact.b), fact]))
 
   let easy = 0
   let hard = 0
   for (const a of FACTORS) {
     for (const b of FACTORS) {
-      const step = toStepIndex(difficultyByKey.get(factKey(a, b)) ?? seedDifficulty(a, b))
+      const step = toStepIndex(factByKey.get(factKey(a, b))?.difficulty ?? seedDifficulty(a, b))
       if (step === 0) easy += 1
       if (step >= 6) hard += 1
     }
   }
 
   const active = activeKey?.split('x').map(Number) ?? null
+  const activeFact =
+    active && active.length === 2 ? factByKey.get(factKey(active[0] ?? 0, active[1] ?? 0)) : undefined
   const activeDifficulty =
     active && active.length === 2
-      ? (difficultyByKey.get(factKey(active[0] ?? 0, active[1] ?? 0)) ??
-        seedDifficulty(active[0] ?? 1, active[1] ?? 1))
+      ? (activeFact?.difficulty ?? seedDifficulty(active[0] ?? 1, active[1] ?? 1))
       : null
+  const activeAverage = formatAverageAttempt(activeFact)
 
   useLayoutEffect(() => {
     const tip = tipRef.current
@@ -74,7 +84,7 @@ export function DifficultyScreen({
       window.removeEventListener('resize', place)
       window.removeEventListener('scroll', place, true)
     }
-  }, [activeKey, activeDifficulty])
+  }, [activeKey, activeDifficulty, activeAverage])
 
   useEffect(() => {
     if (confirming) cancelRef.current?.focus()
@@ -97,7 +107,7 @@ export function DifficultyScreen({
   }, [confirming])
 
   function difficultyAt(a: number, b: number): number {
-    return difficultyByKey.get(factKey(a, b)) ?? seedDifficulty(a, b)
+    return factByKey.get(factKey(a, b))?.difficulty ?? seedDifficulty(a, b)
   }
 
   function hideTip(key: string) {
@@ -140,8 +150,9 @@ export function DifficultyScreen({
           <h1>Fact difficulty</h1>
           <p className="difficulty-lede">
             Each square is one fact, from 1×1 to 9×9. Lighter is easier. Point at a square, or tap it,
-            to see the fact. The difficulties are updated after playing one level, and reflect the
-            user's current level of mastery.
+            to see the fact and, after it has been answered, the average time of the last five tries.
+            The difficulties are updated after playing one level, and reflect the user's current level
+            of mastery.
           </p>
         </header>
         <section className="panel" aria-labelledby="map-title">
@@ -191,13 +202,14 @@ export function DifficultyScreen({
                   {FACTORS.map((b) => {
                     const key = factKey(a, b)
                     const difficulty = difficultyAt(a, b)
+                    const averageLabel = formatAverageAttempt(factByKey.get(key))
                     return (
                       <td key={key}>
                         <button
                           type="button"
                           className={`fact-cell d${toStepIndex(difficulty)}${activeKey === key ? ' is-active' : ''}`}
                           data-testid={`fact-${key}`}
-                          aria-label={`${a} times ${b}, difficulty ${formatDifficulty(difficulty)}`}
+                          aria-label={`${a} times ${b}, difficulty ${formatDifficulty(difficulty)}${averageLabel ? `, ${averageLabel}` : ''}`}
                           ref={(node) => {
                             if (node) cellRefs.current.set(key, node)
                             else cellRefs.current.delete(key)
@@ -257,6 +269,7 @@ export function DifficultyScreen({
               {active[0]} × {active[1]}
             </p>
             <p className="fact-tip-level">Difficulty {formatDifficulty(activeDifficulty)}</p>
+            {activeAverage ? <p className="fact-tip-time">{activeAverage}</p> : null}
           </div>
         ) : null}
       </div>

@@ -75,6 +75,8 @@ Each fact (for example 3×4 and 4×3 are separate) stores:
 - wrong streak: consecutive wrong answers
 - status: unseen, learning, or mastered
 - correct count and wrong count
+- the last 5 answer times, oldest first, and their average
+- answer times whose difficulty move is still waiting
 
 Seed guess, first launch only:
 
@@ -90,6 +92,9 @@ During a level the difficulty numbers stay frozen. Each answer still updates tha
 
 - Correct: streak increases by 1. Wrong streak returns to 0. Status becomes mastered when the streak reaches 3, otherwise learning.
 - Wrong: streak returns to 0. Wrong streak increases by 1. Status becomes learning.
+- Either way, the answer time is stored. The average is the mean of the last 5 times for that fact. A 6th time drops the oldest. Times from a fight that is left early stay saved.
+
+The clock for an answer starts when that question is ready to answer, and stops when the answer is submitted. The reveal and the character reaction are not part of the time. There is no clock on screen.
 
 The next question is chosen with the search rule above, using these frozen difficulties.
 
@@ -119,5 +124,15 @@ If the wrong streak reaches 3 in the same level it passed through 2, only the wr
 
 Difficulty stays on the 0.1 grid, from 0 to 0.9. A decrease that would pass 0 stops at 0. An increase that would pass 0.9 stops at 0.9. The next level uses the new table.
 
-These can be edited: the starting guess, the streak moves (0, −0.2, −0.3), the wrong-streak moves (0, +0.2, +0.3), and each level’s starting difficulty and HP.
+After that streak move, each stored answer time that is still waiting moves the same fact again:
+
+- Under 3 seconds: difficulty decreases by 0.1.
+- From 3 seconds through 10 seconds: that time does not change difficulty.
+- Over 10 seconds: difficulty increases by 0.1.
+
+Each waiting answer moves the fact once. A fast streak of 3 still decreases by 0.3, and each fast answer decreases by another 0.1. The same 0 and 0.9 limits apply. Waiting times are cleared after this move, so the next finished level does not apply them again. The average still keeps its last 5 times.
+
+A fight that is left early does not run this update. The waiting times stay on the fact. The next finished level applies them, including for a fact that was not asked in that later level. That is the same moment a waiting streak move is applied.
+
+These can be edited: the starting guess, the streak moves (0, −0.2, −0.3), the wrong-streak moves (0, +0.2, +0.3), the answer-time bounds (under 3 seconds, over 10 seconds), the time moves (−0.1, +0.1), how many times are kept for the average (5), and each level’s starting difficulty and HP.
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createFact } from './facts.ts'
-import { applyAnswerToFact, applyLevelEndUpdate } from './progress.ts'
+import { createFact, normalizeAttemptMs } from './facts.ts'
+import { applyAnswerToFact, applyLevelEndUpdate, recordAttemptTime } from './progress.ts'
 
 function tenths(value: number): number {
   return Math.round(value * 10)
@@ -212,5 +212,82 @@ describe('end-of-level streak difficulty update', () => {
     expect(fact.wrongCount).toBe(1)
     expect(fact.streak).toBe(0)
     expect(fact.difficulty).toBe(0.3)
+  })
+})
+
+describe('answer time difficulty update', () => {
+  it('lowers difficulty by 0.1 under 3 seconds and raises it by 0.1 over 10', () => {
+    const fast = applyLevelEndUpdate(recordAttemptTime(createFact(8, 7, 0.5), 2999))
+    expect(tenths(fast.difficulty)).toBe(4)
+    expect(fast.pendingAttemptMs).toEqual([])
+
+    const heldAt3 = applyLevelEndUpdate(recordAttemptTime(createFact(8, 7, 0.5), 3000))
+    const heldAt10 = applyLevelEndUpdate(recordAttemptTime(createFact(8, 7, 0.5), 10000))
+    expect(tenths(heldAt3.difficulty)).toBe(5)
+    expect(tenths(heldAt10.difficulty)).toBe(5)
+
+    const slow = applyLevelEndUpdate(recordAttemptTime(createFact(8, 7, 0.5), 10001))
+    expect(tenths(slow.difficulty)).toBe(6)
+  })
+
+  it('adds the time move on top of the streak move, once per answer', () => {
+    let fact = applyAnswerToFact(createFact(8, 7, 0.8), true)
+    fact = applyAnswerToFact(fact, true)
+    fact = recordAttemptTime(fact, 1000)
+    fact = recordAttemptTime(fact, 1000)
+    fact = applyLevelEndUpdate(fact)
+    expect(fact.streak).toBe(2)
+    expect(tenths(fact.difficulty)).toBe(4)
+    expect(fact.moveAppliedForStreak).toBe(2)
+
+    const again = applyLevelEndUpdate(fact)
+    expect(tenths(again.difficulty)).toBe(4)
+    expect(again.averageAttemptMs).toBe(1000)
+  })
+
+  it('keeps a 3 to 10 second answer from adding a time move while the streak move still happens', () => {
+    let fact = applyAnswerToFact(createFact(8, 7, 0.8), true)
+    fact = applyAnswerToFact(fact, true)
+    fact = recordAttemptTime(fact, 3000)
+    fact = recordAttemptTime(fact, 10000)
+    fact = applyLevelEndUpdate(fact)
+    expect(tenths(fact.difficulty)).toBe(6)
+  })
+
+  it('stacks a slow miss with the wrong-streak raise and stops at 0.9', () => {
+    let fact = applyAnswerToFact(createFact(6, 8, 0.4), false)
+    fact = applyAnswerToFact(fact, false)
+    fact = recordAttemptTime(fact, 11000)
+    fact = recordAttemptTime(fact, 11000)
+    fact = applyLevelEndUpdate(fact)
+    expect(tenths(fact.difficulty)).toBe(8)
+
+    const capped = applyLevelEndUpdate(
+      recordAttemptTime({ ...createFact(9, 9, 0.9), streak: 0, wrongStreak: 3 }, 20000),
+    )
+    expect(capped.difficulty).toBe(0.9)
+  })
+
+  it('stops a fast answer at 0', () => {
+    const low = applyLevelEndUpdate(
+      recordAttemptTime({ ...createFact(1, 1, 0), streak: 3, status: 'mastered' }, 500),
+    )
+    expect(low.difficulty).toBe(0)
+  })
+
+  it('stores the average of the last 5 attempts and ignores a bad duration', () => {
+    let fact = createFact(3, 4, 0.3)
+    for (const ms of [1000, 2000, 3000, 4000, 5000, 6000]) {
+      fact = recordAttemptTime(fact, ms)
+    }
+    expect(fact.recentAttemptMs).toEqual([2000, 3000, 4000, 5000, 6000])
+    expect(fact.averageAttemptMs).toBe(4000)
+    expect(fact.pendingAttemptMs).toEqual([1000, 2000, 3000, 4000, 5000, 6000])
+    expect(tenths(fact.difficulty)).toBe(3)
+
+    const unchanged = recordAttemptTime(recordAttemptTime(fact, Number.NaN), -1)
+    expect(unchanged.recentAttemptMs).toEqual(fact.recentAttemptMs)
+    expect(unchanged.averageAttemptMs).toBe(4000)
+    expect(normalizeAttemptMs([1, -5, Number.NaN, 'no', 2, 3, 4, 5, 6])).toEqual([2, 3, 4, 5, 6])
   })
 })
