@@ -145,7 +145,7 @@ describe('fight difficulty timing', () => {
 
   it('raises difficulty for a slow miss when the level is lost, and keeps only the last 5 times', () => {
     let state = startFight('easy', [createFact(6, 7, 0.5)], zero)
-    const times = [1000, 2000, 3000, 4000, 5000, 11000]
+    const times = [1000, 2000, 5000, 6000, 7000, 11000]
     for (const elapsedMs of times) {
       const step = commitAnswer(state, '0', zero, elapsedMs)
       state = step.state
@@ -153,8 +153,8 @@ describe('fight difficulty timing', () => {
     expect(state.outcome).toBe('lose')
     expect(state.facts[0]!.wrongStreak).toBe(gameConfig.levels.easy.avatarHp)
     expect(toStepIndex(state.facts[0]!.difficulty)).toBe(7)
-    expect(state.facts[0]!.recentAttemptMs).toEqual([2000, 3000, 4000, 5000, 11000])
-    expect(state.facts[0]!.averageAttemptMs).toBe(5000)
+    expect(state.facts[0]!.recentAttemptMs).toEqual([2000, 5000, 6000, 7000, 11000])
+    expect(state.facts[0]!.averageAttemptMs).toBe(6200)
     expect(state.facts[0]!.pendingAttemptMs).toEqual([])
   })
 

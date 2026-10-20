@@ -50,7 +50,7 @@ export const gameConfig: {
     3: 0.3,
   },
   answerTiming: {
-    fastUnderSeconds: 3,
+    fastUnderSeconds: 5,
     slowOverSeconds: 10,
     fastDelta: -0.1,
     slowDelta: 0.1,
