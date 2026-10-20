@@ -20,7 +20,7 @@ describe('seed guess', () => {
     expect(gameConfig.wrongStreakDifficultyDelta[1]).toBe(0)
     expect(gameConfig.wrongStreakDifficultyDelta[2]).toBe(0.2)
     expect(gameConfig.wrongStreakDifficultyDelta[3]).toBe(0.3)
-    expect(gameConfig.answerTiming.fastUnderSeconds).toBe(3)
+    expect(gameConfig.answerTiming.fastUnderSeconds).toBe(5)
     expect(gameConfig.answerTiming.slowOverSeconds).toBe(10)
     expect(gameConfig.answerTiming.fastDelta).toBe(-0.1)
     expect(gameConfig.answerTiming.slowDelta).toBe(0.1)

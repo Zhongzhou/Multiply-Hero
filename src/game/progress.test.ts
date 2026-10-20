@@ -216,14 +216,14 @@ describe('end-of-level streak difficulty update', () => {
 })
 
 describe('answer time difficulty update', () => {
-  it('lowers difficulty by 0.1 under 3 seconds and raises it by 0.1 over 10', () => {
-    const fast = applyLevelEndUpdate(recordAttemptTime(createFact(8, 7, 0.5), 2999))
+  it('lowers difficulty by 0.1 under 5 seconds and raises it by 0.1 over 10', () => {
+    const fast = applyLevelEndUpdate(recordAttemptTime(createFact(8, 7, 0.5), 4999))
     expect(tenths(fast.difficulty)).toBe(4)
     expect(fast.pendingAttemptMs).toEqual([])
 
-    const heldAt3 = applyLevelEndUpdate(recordAttemptTime(createFact(8, 7, 0.5), 3000))
+    const heldAt5 = applyLevelEndUpdate(recordAttemptTime(createFact(8, 7, 0.5), 5000))
     const heldAt10 = applyLevelEndUpdate(recordAttemptTime(createFact(8, 7, 0.5), 10000))
-    expect(tenths(heldAt3.difficulty)).toBe(5)
+    expect(tenths(heldAt5.difficulty)).toBe(5)
     expect(tenths(heldAt10.difficulty)).toBe(5)
 
     const slow = applyLevelEndUpdate(recordAttemptTime(createFact(8, 7, 0.5), 10001))
@@ -245,10 +245,10 @@ describe('answer time difficulty update', () => {
     expect(again.averageAttemptMs).toBe(1000)
   })
 
-  it('keeps a 3 to 10 second answer from adding a time move while the streak move still happens', () => {
+  it('keeps a 5 to 10 second answer from adding a time move while the streak move still happens', () => {
     let fact = applyAnswerToFact(createFact(8, 7, 0.8), true)
     fact = applyAnswerToFact(fact, true)
-    fact = recordAttemptTime(fact, 3000)
+    fact = recordAttemptTime(fact, 5000)
     fact = recordAttemptTime(fact, 10000)
     fact = applyLevelEndUpdate(fact)
     expect(tenths(fact.difficulty)).toBe(6)
