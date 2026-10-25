@@ -94,6 +94,8 @@ During a level the difficulty numbers stay frozen. Each answer still updates tha
 - Wrong: streak returns to 0. Wrong streak increases by 1. Status becomes learning.
 - Either way, the answer time is stored. The average is the mean of the last 5 times for that fact. A 6th time drops the oldest. Times from a fight that is left early stay saved.
 
+If the same fact is asked on the very next attempt, that attempt is not recorded. The streak, wrong streak, counts, status, and answer time stay as they were. The answer still changes hearts and can still move the search. The fact is recorded again once a different fact has been asked in between. A new fight can record the fact on its first answer.
+
 The clock for an answer starts when that question is ready to answer, and stops when the answer is submitted. The reveal and the character reaction are not part of the time. There is no clock on screen.
 
 The next question is chosen with the search rule above, using these frozen difficulties.

@@ -15,6 +15,8 @@ export interface FightState {
   question: Fact
   over: boolean
   outcome: 'win' | 'lose' | null
+  /** Fact recorded on the previous attempt. The next attempt of this same fact is not recorded. */
+  lastAnsweredKey: string | null
 }
 
 export function factsAtDifficulty(facts: readonly Fact[], difficulty: number): Fact[] {
@@ -67,6 +69,7 @@ export function startFight(
     question: pickFact(table, search.difficulty, undefined, rng),
     over: false,
     outcome: null,
+    lastAnsweredKey: null,
   }
 }
 
@@ -88,11 +91,14 @@ export function commitAnswer(
   const correct = Number(raw) === product
   const key = factKey(state.question.a, state.question.b)
   const elapsed = acceptedElapsed(elapsedMs)
-  const answered = state.facts.map((fact) => {
-    if (factKey(fact.a, fact.b) !== key) return fact
-    const updated = applyAnswerToFact(fact, correct)
-    return elapsed === null ? updated : recordAttemptTime(updated, elapsed)
-  })
+  const repeated = state.lastAnsweredKey === key
+  const answered = repeated
+    ? state.facts
+    : state.facts.map((fact) => {
+        if (factKey(fact.a, fact.b) !== key) return fact
+        const updated = applyAnswerToFact(fact, correct)
+        return elapsed === null ? updated : recordAttemptTime(updated, elapsed)
+      })
   const occupied = state.facts.map((fact) => fact.difficulty)
   const search = applySearchAnswer(state.search, correct, occupied)
   const avatarHp = correct ? state.avatarHp : state.avatarHp - 1
@@ -113,6 +119,7 @@ export function commitAnswer(
       question: over ? state.question : pickFact(facts, search.difficulty, key, rng),
       over,
       outcome,
+      lastAnsweredKey: key,
     },
   }
 }

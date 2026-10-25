@@ -26,6 +26,7 @@ Friends get the same private app link. Each tablet keeps its own records, so not
 - The shared file is only the starting guess, copied once on first launch.
 - During a fight, search difficulty moves by 0.1 using the rule in [Design](/cursor/stores/bc-376a0a9c-a8e7-4212-935d-b562a55c4969/docs/design.md).
 - After a finished level, a correct streak of 2 decreases that fact’s difficulty by 0.2 and a correct streak of 3 decreases it by 0.3. A wrong streak of 2 increases it by 0.2 and a wrong streak of 3 increases it by 0.3. Each answer under 5 seconds also decreases that fact by 0.1, and each answer over 10 seconds increases it by 0.1. Answers from 5 through 10 seconds do not add a time change.
+- Asking the same fact on the next attempt does not record that attempt. The streak and the answer time stay as they were until a different fact is asked in between.
 - No child picker. Each tablet is one girl’s.
 
 ## Sharing
