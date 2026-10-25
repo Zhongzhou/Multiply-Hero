@@ -7,7 +7,7 @@ import { toStepIndex } from './difficulty.ts'
 const zero = () => 0
 
 describe('fight difficulty timing', () => {
-  it('keeps difficulties frozen until boss HP hits 0, then applies the streak-3 move once', () => {
+  it('keeps difficulty frozen during a win, and does not build a streak from consecutive repeats', () => {
     let state = startFight('easy', [createFact(8, 7, 0.8)], zero)
     expect(toStepIndex(state.search.difficulty)).toBe(8)
     expect(state.question).toMatchObject({ a: 8, b: 7 })
@@ -19,17 +19,39 @@ describe('fight difficulty timing', () => {
       state = step.state
       expect(state.over).toBe(false)
       expect(toStepIndex(state.facts[0]!.difficulty)).toBe(8)
-      expect(state.facts[0]!.streak).toBe(hit + 1)
+      expect(state.facts[0]!.streak).toBe(1)
+      expect(state.facts[0]!.correctCount).toBe(1)
     }
 
     const last = commitAnswer(state, '56', zero)
     expect(last.state.outcome).toBe('win')
     expect(last.state.bossHp).toBe(0)
-    expect(last.state.facts[0]!.streak).toBe(4)
-    expect(toStepIndex(last.state.facts[0]!.difficulty)).toBe(5)
+    expect(last.state.facts[0]!.streak).toBe(1)
+    expect(toStepIndex(last.state.facts[0]!.difficulty)).toBe(8)
   })
 
-  it('keeps difficulty frozen through a loss, then raises it for a miss streak of 3', () => {
+  it('applies the streak-3 move once when the same fact is answered with other facts in between', () => {
+    const facts = [createFact(6, 7, 0.8), createFact(6, 8, 0.8)]
+    let state = startFight('hard', facts, zero)
+    expect(state.question).toMatchObject({ a: 6, b: 7 })
+
+    for (let hit = 0; hit < gameConfig.levels.hard.bossHp - 1; hit += 1) {
+      const step = commitAnswer(state, String(state.question.a * state.question.b), zero)
+      state = step.state
+      expect(state.over).toBe(false)
+      for (const fact of state.facts) expect(toStepIndex(fact.difficulty)).toBe(8)
+    }
+
+    const last = commitAnswer(state, String(state.question.a * state.question.b), zero)
+    expect(last.state.outcome).toBe('win')
+    for (const fact of last.state.facts) {
+      expect(fact.streak).toBe(4)
+      expect(toStepIndex(fact.difficulty)).toBe(5)
+      expect(fact.moveAppliedForStreak).toBe(3)
+    }
+  })
+
+  it('keeps difficulty frozen through a loss, and ignores consecutive misses of the only fact', () => {
     let state = startFight('hard', [createFact(6, 7, 0.8)], zero)
     expect(toStepIndex(state.search.difficulty)).toBe(8)
     const hits = gameConfig.levels.hard.avatarHp
@@ -39,15 +61,32 @@ describe('fight difficulty timing', () => {
       state = step.state
       expect(state.over).toBe(false)
       expect(state.facts[0]!.streak).toBe(0)
+      expect(state.facts[0]!.wrongStreak).toBe(1)
       expect(toStepIndex(state.facts[0]!.difficulty)).toBe(8)
     }
     const last = commitAnswer(state, '0', zero)
     expect(last.state.outcome).toBe('lose')
     expect(last.state.avatarHp).toBe(0)
-    expect(last.state.facts[0]!.wrongStreak).toBe(hits)
-    expect(toStepIndex(last.state.facts[0]!.difficulty)).toBe(9)
-    expect(last.state.facts[0]!.raiseAppliedForStreak).toBe(3)
-    expect(last.state.facts[0]!.moveAppliedForStreak).toBe(0)
+    expect(last.state.facts[0]!.wrongStreak).toBe(1)
+    expect(last.state.facts[0]!.wrongCount).toBe(1)
+    expect(toStepIndex(last.state.facts[0]!.difficulty)).toBe(8)
+    expect(last.state.facts[0]!.raiseAppliedForStreak).toBe(0)
+  })
+
+  it('raises both facts for a miss streak of 3 when the misses are not consecutive', () => {
+    const facts = [createFact(6, 7, 0.2), createFact(6, 8, 0.2)]
+    let state = startFight('easy', facts, zero)
+    const hits = gameConfig.levels.easy.avatarHp
+    for (let hit = 0; hit < hits; hit += 1) {
+      const step = commitAnswer(state, '0', zero)
+      state = step.state
+    }
+    expect(state.outcome).toBe('lose')
+    for (const fact of state.facts) {
+      expect(fact.wrongStreak).toBe(3)
+      expect(toStepIndex(fact.difficulty)).toBe(5)
+      expect(fact.raiseAppliedForStreak).toBe(3)
+    }
   })
 
   it('moves the search with frozen difficulties and leaves an unasked fact alone', () => {
@@ -83,7 +122,8 @@ describe('fight difficulty timing', () => {
     const second = commitAnswer(first.state, '4', zero)
     expect(toStepIndex(second.state.search.difficulty)).toBe(8)
     expect(second.state.question).toMatchObject({ a: 8, b: 7 })
-    expect(second.state.facts.find((fact) => fact.a === 2)!.streak).toBe(2)
+    expect(second.state.facts.find((fact) => fact.a === 2)!.streak).toBe(1)
+    expect(second.state.facts.find((fact) => fact.a === 2)!.correctCount).toBe(1)
   })
 
   it('starts on the nearer lower difficulty when the level start is empty', () => {
@@ -98,23 +138,59 @@ describe('fight difficulty timing', () => {
     )
   })
 
-  it('keeps difficulty frozen during a fight, then adds each fast answer to the streak move', () => {
+  it('records the first fast answer and ignores consecutive repeats of that fact', () => {
     let state = startFight('easy', [createFact(8, 7, 0.8)], zero)
     for (let hit = 0; hit < 3; hit += 1) {
       const step = commitAnswer(state, '56', zero, 1000)
       expect(step.state.over).toBe(false)
       expect(toStepIndex(step.state.facts[0]!.difficulty)).toBe(8)
-      expect(step.state.facts[0]!.recentAttemptMs).toEqual(Array.from({ length: hit + 1 }, () => 1000))
-      expect(step.state.facts[0]!.pendingAttemptMs).toHaveLength(hit + 1)
+      expect(step.state.facts[0]!.streak).toBe(1)
+      expect(step.state.facts[0]!.recentAttemptMs).toEqual([1000])
+      expect(step.state.facts[0]!.pendingAttemptMs).toEqual([1000])
       state = step.state
     }
 
-    const last = commitAnswer(state, '56', zero, 1000)
+    const last = commitAnswer(state, '56', zero, 9000)
     expect(last.state.outcome).toBe('win')
-    expect(toStepIndex(last.state.facts[0]!.difficulty)).toBe(1)
+    expect(last.state.facts[0]!.streak).toBe(1)
+    expect(toStepIndex(last.state.facts[0]!.difficulty)).toBe(7)
     expect(last.state.facts[0]!.pendingAttemptMs).toEqual([])
+    expect(last.state.facts[0]!.recentAttemptMs).toEqual([1000])
     expect(last.state.facts[0]!.averageAttemptMs).toBe(1000)
-    expect(last.state.facts[0]!.moveAppliedForStreak).toBe(3)
+  })
+
+  it('keeps the streak and the average when the repeated fact is answered wrong', () => {
+    const first = commitAnswer(startFight('easy', [createFact(8, 7, 0.8)], zero), '56', zero, 1000)
+    const repeat = commitAnswer(first.state, '0', zero, 12000)
+    expect(repeat.correct).toBe(false)
+    expect(repeat.state.avatarHp).toBe(first.state.avatarHp - 1)
+    expect(repeat.state.facts[0]).toMatchObject({
+      streak: 1,
+      wrongStreak: 0,
+      correctCount: 1,
+      wrongCount: 0,
+      recentAttemptMs: [1000],
+      averageAttemptMs: 1000,
+      pendingAttemptMs: [1000],
+    })
+  })
+
+  it('records the fact again after a different fact is asked', () => {
+    let state = startFight('easy', [createFact(6, 7, 0.8), createFact(8, 7, 0.8)], zero)
+    expect(state.question).toMatchObject({ a: 6, b: 7 })
+    state = commitAnswer(state, '42', zero, 1000).state
+    expect(state.question).toMatchObject({ a: 8, b: 7 })
+    state = commitAnswer(state, '56', zero, 2000).state
+    expect(state.question).toMatchObject({ a: 6, b: 7 })
+    state = commitAnswer(state, '42', zero, 4000).state
+
+    const practiced = state.facts.find((fact) => fact.a === 6 && fact.b === 7)
+    expect(practiced).toMatchObject({
+      streak: 2,
+      correctCount: 2,
+      recentAttemptMs: [1000, 4000],
+      averageAttemptMs: 2500,
+    })
   })
 
   it('applies a fast answer from an unfinished fight when a later level finishes, and does not apply it twice', () => {
@@ -131,31 +207,34 @@ describe('fight difficulty timing', () => {
     }
     const finished = commitAnswer(state, '56', zero, 5000)
     expect(finished.state.outcome).toBe('win')
-    expect(toStepIndex(finished.state.facts[0]!.difficulty)).toBe(4)
+    expect(finished.state.facts[0]!.streak).toBe(2)
+    expect(toStepIndex(finished.state.facts[0]!.difficulty)).toBe(5)
     expect(finished.state.facts[0]!.pendingAttemptMs).toEqual([])
-    expect(finished.state.facts[0]!.recentAttemptMs).toEqual([1000, 5000, 5000, 5000, 5000])
+    expect(finished.state.facts[0]!.recentAttemptMs).toEqual([1000, 5000])
 
     let again = startFight('easy', finished.state.facts, zero)
     for (let hit = 0; hit < 4; hit += 1) {
       again = commitAnswer(again, '56', zero, 5000).state
     }
     expect(again.outcome).toBe('win')
-    expect(toStepIndex(again.facts[0]!.difficulty)).toBe(4)
+    expect(again.facts[0]!.streak).toBe(3)
+    expect(toStepIndex(again.facts[0]!.difficulty)).toBe(2)
   })
 
-  it('raises difficulty for a slow miss when the level is lost, and keeps only the last 5 times', () => {
-    let state = startFight('easy', [createFact(6, 7, 0.5)], zero)
-    const times = [1000, 2000, 5000, 6000, 7000, 11000]
-    for (const elapsedMs of times) {
-      const step = commitAnswer(state, '0', zero, elapsedMs)
-      state = step.state
+  it('raises difficulty for slow misses that are separated by another fact', () => {
+    const facts = [createFact(6, 7, 0.2), createFact(6, 8, 0.2)]
+    let state = startFight('easy', facts, zero)
+    for (let hit = 0; hit < gameConfig.levels.easy.avatarHp; hit += 1) {
+      state = commitAnswer(state, '0', zero, 11000).state
     }
     expect(state.outcome).toBe('lose')
-    expect(state.facts[0]!.wrongStreak).toBe(gameConfig.levels.easy.avatarHp)
-    expect(toStepIndex(state.facts[0]!.difficulty)).toBe(7)
-    expect(state.facts[0]!.recentAttemptMs).toEqual([2000, 5000, 6000, 7000, 11000])
-    expect(state.facts[0]!.averageAttemptMs).toBe(6200)
-    expect(state.facts[0]!.pendingAttemptMs).toEqual([])
+    for (const fact of state.facts) {
+      expect(fact.wrongStreak).toBe(3)
+      expect(toStepIndex(fact.difficulty)).toBe(8)
+      expect(fact.recentAttemptMs).toEqual([11000, 11000, 11000])
+      expect(fact.averageAttemptMs).toBe(11000)
+      expect(fact.pendingAttemptMs).toEqual([])
+    }
   })
 
   it('does not record a time when the submission is rejected', () => {
