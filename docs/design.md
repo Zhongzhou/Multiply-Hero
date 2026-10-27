@@ -35,9 +35,9 @@ Avatar: (kids can choose different avatar and the list can be expanded later)
 
 Level boss: 
 
-- Easy: A pig
-- Medium: A  killer whale
-- Hard: A big gorilla
+- Easy: Hammy, the pig
+- Medium: Lance, the cow
+- Hard: Raja, the tiger
 
 #### Screen layout:
 
@@ -49,13 +49,13 @@ Level boss:
 
 - When a correct answer is entered:
   - The avatar makes a face to the level boss by sticking out its tongue.
-  - The level boss cries
+  - The level boss looks surprised
 - When an incorrect answer is entered:
   - The avatar cries
   - The level boss laughs
 - When a level is cleared (level boss HP reaches zero):
   - The avatar laughs and jumps
-  - The level boss fell to the gound and crys hard with a lot of tears
+  - The level boss is on the ground
   - "You win!" text
 - When a level fails (avatar HP reaches zero):
   - The avatar lays on the ground and crys

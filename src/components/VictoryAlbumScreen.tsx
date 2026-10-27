@@ -264,7 +264,7 @@ function LevelRow({ level, count, dayKey }: { level: LevelId; count: number; day
           ))
         )}
       </div>
-      <div className={`album-boss${level === 'easy' ? '' : ' is-flat'}`} aria-hidden="true">
+      <div className="album-boss" aria-hidden="true">
         <CharacterArt id={settings.boss} expression="hard-cry" motion="fallen" />
       </div>
     </section>

@@ -152,7 +152,7 @@ export function FightScreen({
   const boss = bossCast[settings.boss]
   const shownQuestion = phase === 'ask' || !feedback ? fight.question : feedback.question
   const avatarMoment = phase === 'react' && feedback ? (feedback.correct ? 'tongue' : 'cry') : 'idle'
-  const bossMoment = phase === 'react' && feedback ? (feedback.correct ? 'cry' : 'laugh') : 'idle'
+  const bossMoment = phase === 'react' && feedback ? (feedback.correct ? 'surprise' : 'laugh') : 'idle'
   const equation = feedback ? `${feedback.question.a} × ${feedback.question.b} = ${feedback.product}` : ''
   const feedbackText =
     phase === 'ask' || !feedback ? '' : feedback.correct ? `Yes! ${equation}` : `Not quite. ${equation}`

@@ -1,6 +1,6 @@
 # Character pictures
 
-Swap any file in this folder and refresh. Keep the filename. The pictures are the poses the game shows today, so it looks the same until you replace one.
+Hero pictures live in this folder. Swap a hero file and refresh. Keep the filename. Boss pictures live in `public/animals`.
 
 Win pictures still hop. Lose pictures stay upright, the way they are drawn.
 
@@ -22,26 +22,16 @@ Win pictures still hop. Lose pictures stay upright, the way they are drawn.
 - `marshmello-laughing-and-jumping.png` — Marshy wins the fight
 - `marshmello-on-the-ground-crying.png` — Marshy loses the fight
 
-## Penny
+Bosses are the pictures in `public/animals`. Each animal has four files. `001` is idle, `002` is the surprise when the player answers correctly, `003` is the laugh when the player answers wrong and when the boss wins the fight, and `004` is the boss on the ground when the player wins.
 
-- `penny-standing.png` — Easy battle card, and while a question is waiting
-- `penny-crying.png` — the player answers correctly
-- `penny-laughing.png` — the player answers wrong
-- `penny-laughing-and-jumping.png` — Penny wins the fight
-- `penny-fell-down-crying.png` — Penny loses the fight
+## Pig
 
-## Splash
+Easy. `Pig001.png` through `Pig004.png`.
 
-- `splash-standing.png` — Medium battle card, and while a question is waiting
-- `splash-crying.png` — the player answers correctly
-- `splash-laughing.png` — the player answers wrong
-- `splash-laughing-and-jumping.png` — Splash wins the fight
-- `splash-fell-down-crying.png` — Splash loses the fight
+## Cow
 
-## Bongo
+Medium. The files are named Bull: `Bull001.png` through `Bull004.png`.
 
-- `bongo-standing.png` — Hard battle card, and while a question is waiting
-- `bongo-crying.png` — the player answers correctly
-- `bongo-laughing.png` — the player answers wrong
-- `bongo-laughing-and-jumping.png` — Bongo wins the fight
-- `bongo-fell-down-crying.png` — Bongo loses the fight
+## Tiger
+
+Hard. `Tiger001.png` through `Tiger004.png`.

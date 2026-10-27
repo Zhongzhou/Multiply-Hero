@@ -1,6 +1,6 @@
 # Multiply Heroes
 
-A private tablet game for practicing single-digit multiplication. The hero fights a pig, a whale, or a gorilla by answering facts from 1×1 through 9×9. There is no account and no server. Each browser keeps that player's fact table in IndexedDB, and the installed app can keep working offline.
+A private tablet game for practicing single-digit multiplication. The hero fights a pig, a cow, or a tiger by answering facts from 1×1 through 9×9. There is no account and no server. Each browser keeps that player's fact table in IndexedDB, and the installed app can keep working offline.
 
 ## Run locally
 
