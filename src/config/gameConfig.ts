@@ -4,7 +4,7 @@
  * Later play updates that saved table and never writes this file.
  */
 export type LevelId = 'easy' | 'medium' | 'hard'
-export type BossId = 'pig' | 'whale' | 'gorilla'
+export type BossId = 'pig' | 'cow' | 'tiger'
 export type AvatarId = 'penguin' | 'koala'
 
 export interface LevelSettings {
@@ -36,8 +36,8 @@ export const gameConfig: {
   factors: { min: 1, max: 9 },
   levels: {
     easy: { startDifficulty: 0, avatarHp: 6, bossHp: 4, boss: 'pig' },
-    medium: { startDifficulty: 0.3, avatarHp: 5, bossHp: 6, boss: 'whale' },
-    hard: { startDifficulty: 0.5, avatarHp: 4, bossHp: 8, boss: 'gorilla' },
+    medium: { startDifficulty: 0.3, avatarHp: 5, bossHp: 6, boss: 'cow' },
+    hard: { startDifficulty: 0.5, avatarHp: 4, bossHp: 8, boss: 'tiger' },
   },
   streakDifficultyDelta: {
     1: 0,

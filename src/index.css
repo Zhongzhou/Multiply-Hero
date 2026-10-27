@@ -1040,10 +1040,6 @@ h2 {
   object-position: center bottom;
 }
 
-.album-boss.is-flat img {
-  mix-blend-mode: multiply;
-}
-
 .album-medal,
 .album-empty-medal {
   width: 3.15rem;
